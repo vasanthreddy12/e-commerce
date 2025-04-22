@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import { useOrder } from '../hooks/useOrder';
+import { useAuth } from '../hooks/useAuth.ts';
+import { useOrder } from '../hooks/useOrder.ts';
 
 const Profile: React.FC = () => {
   const { user } = useAuth();

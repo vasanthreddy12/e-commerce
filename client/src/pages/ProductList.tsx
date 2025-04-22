@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { useProducts } from '../hooks/useProducts';
+import { useProducts } from '../hooks/useProducts.ts';
 
 const sortOptions = [
   { value: 'price:asc', label: 'Price: Low to High' },

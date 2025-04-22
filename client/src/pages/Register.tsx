@@ -3,9 +3,9 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../store';
-import { register } from '../store/slices/authSlice';
-import { registerSchema } from '../utils/validation';
-import { useAuth } from '../hooks/useAuth';
+import { register } from '../store/slices/authSlice.ts';
+import { registerSchema } from '../utils/validation.ts';
+import { useAuth } from '../hooks/useAuth.ts';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();

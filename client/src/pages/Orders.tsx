@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useOrder } from '../hooks/useOrder';
+import { useOrder } from '../hooks/useOrder.ts';
 
 const statusColors = {
   pending: 'bg-yellow-100 text-yellow-800',

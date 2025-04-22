@@ -7,8 +7,8 @@ import {
   updateCartItem,
   removeFromCart,
   clearCart,
-} from '../store/slices/cartSlice';
-import { useAuth } from './useAuth';
+} from '../store/slices/cartSlice.ts';
+import { useAuth } from './useAuth.ts';
 
 export const useCart = () => {
   const dispatch = useDispatch<AppDispatch>();

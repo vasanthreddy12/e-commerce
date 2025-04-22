@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field } from 'formik';
-import { useProducts } from '../../hooks/useProducts';
-import { productSchema } from '../../utils/validation';
+import { useProducts } from '../../hooks/useProducts.ts';
+import { productSchema } from '../../utils/validation.ts';
 
 interface ProductFormValues {
   name: string;

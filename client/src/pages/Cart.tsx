@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useCart } from '../hooks/useCart';
+import { useCart } from '../hooks/useCart.ts';
 
 const Cart: React.FC = () => {
   const navigate = useNavigate();

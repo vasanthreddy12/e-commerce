@@ -6,7 +6,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
-} from '../store/slices/productSlice';
+} from '../store/slices/productSlice.ts';
 
 export const useProducts = () => {
   const dispatch = useDispatch<AppDispatch>();

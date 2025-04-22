@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
-import { getMe } from '../store/slices/authSlice';
+import { getMe } from '../store/slices/authSlice.ts';
 
 export const useAuth = () => {
   const dispatch = useDispatch<AppDispatch>();

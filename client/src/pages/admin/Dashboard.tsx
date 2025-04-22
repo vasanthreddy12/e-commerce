@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useProducts } from '../../hooks/useProducts';
-import { useOrder } from '../../hooks/useOrder';
+import { useProducts } from '../../hooks/useProducts.ts';
+import { useOrder } from '../../hooks/useOrder.ts';
 
 interface DashboardStats {
   totalOrders: number;

@@ -7,9 +7,9 @@ import {
   getAllOrders,
   updateOrder,
   createRazorpayOrder,
-} from '../store/slices/orderSlice';
-import { useAuth } from './useAuth';
-import { loadRazorpayScript, createRazorpayOptions, initializeRazorpayPayment } from '../utils/razorpay';
+} from '../store/slices/orderSlice.ts';
+import { useAuth } from './useAuth.ts';
+import { loadRazorpayScript, createRazorpayOptions, initializeRazorpayPayment } from '../utils/razorpay.ts';
 
 export const useOrder = () => {
   const dispatch = useDispatch<AppDispatch>();

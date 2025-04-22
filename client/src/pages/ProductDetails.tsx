@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useProducts } from '../hooks/useProducts';
-import { useCart } from '../hooks/useCart';
-import { useAuth } from '../hooks/useAuth';
+import { useProducts } from '../hooks/useProducts.ts';
+import { useCart } from '../hooks/useCart.ts';
+import { useAuth } from '../hooks/useAuth.ts';
 
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();

@@ -1,9 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
-import { useCart } from '../hooks/useCart';
-import { useOrder } from '../hooks/useOrder';
-import { shippingAddressSchema } from '../utils/validation';
+import { useCart } from '../hooks/useCart.ts';
+import { useOrder } from '../hooks/useOrder.ts';
+import { shippingAddressSchema } from '../utils/validation.ts';
 
 const Checkout: React.FC = () => {
   const navigate = useNavigate();

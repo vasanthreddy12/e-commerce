@@ -1,0 +1,17 @@
+{
+  "name": "e-commerce",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "docker-compose up -d",
+    "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm start\"",
+    "install-all": "npm install && cd client && npm install && cd ../server && npm install",
+    "build": "cd client && npm run build && cd ../server && npm run build",
+    "test": "cd client && npm test && cd ../server && npm test",
+    "lint": "cd client && npm run lint && cd ../server && npm run lint",
+    "format": "cd client && npm run format && cd ../server && npm run format"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.1"
+  }
+}

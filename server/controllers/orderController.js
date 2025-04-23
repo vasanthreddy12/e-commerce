@@ -1,13 +1,14 @@
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
-const Razorpay = require('razorpay');
+// const Razorpay = require('razorpay');
 const { validationResult } = require('express-validator');
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET
-});
+// Commenting out Razorpay initialization
+// const razorpay = new Razorpay({
+//   key_id: process.env.RAZORPAY_KEY_ID,
+//   key_secret: process.env.RAZORPAY_KEY_SECRET
+// });
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -38,12 +39,12 @@ exports.createOrder = async (req, res) => {
     const shippingPrice = itemsPrice > 1000 ? 0 : 100; // Free shipping for orders over ₹1000
     const totalPrice = itemsPrice + taxPrice + shippingPrice;
 
-    // Create Razorpay order
-    const razorpayOrder = await razorpay.orders.create({
-      amount: Math.round(totalPrice * 100), // Convert to paise
-      currency: 'INR',
-      receipt: `order_${Date.now()}`
-    });
+    // Comment out Razorpay order creation
+    // const razorpayOrder = await razorpay.orders.create({
+    //   amount: Math.round(totalPrice * 100), // Convert to paise
+    //   currency: 'INR',
+    //   receipt: `order_${Date.now()}`
+    // });
 
     // Create order in database
     const order = await Order.create({
@@ -55,24 +56,31 @@ exports.createOrder = async (req, res) => {
         price: item.price
       })),
       shippingAddress,
-      paymentMethod: 'Razorpay',
+      paymentMethod: 'COD', // Changed to Cash on Delivery
       itemsPrice,
       taxPrice,
       shippingPrice,
       totalPrice,
-      paymentResult: {
-        razorpay_order_id: razorpayOrder.id
-      }
+      // Removing Razorpay-specific fields
+      status: 'processing', // Set status directly to processing
+      isPaid: false // Will be paid on delivery
     });
 
     // Clear cart
     cart.items = [];
     await cart.save();
 
+    // Update product stock
+    for (const item of order.items) {
+      const product = await Product.findById(item.product);
+      product.stock -= item.quantity;
+      await product.save();
+    }
+
     res.status(201).json({
       success: true,
-      order,
-      razorpayOrder
+      message: 'Order placed successfully',
+      order
     });
   } catch (error) {
     console.error(error);
@@ -85,7 +93,12 @@ exports.createOrder = async (req, res) => {
 // @access  Private
 exports.getOrderById = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id).populate('user', 'name email');
+    const order = await Order.findById(req.params.id)
+      .populate('user', 'name email')
+      .populate({
+        path: 'items.product',
+        select: 'name image _id'
+      });
 
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
@@ -111,7 +124,12 @@ exports.getOrderById = async (req, res) => {
 // @access  Private
 exports.getMyOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user.id });
+    const orders = await Order.find({ user: req.user.id })
+      .populate({
+        path: 'items.product',
+        select: 'name image'
+      })
+      .sort({ createdAt: -1 });
     res.json({ success: true, orders });
   } catch (error) {
     console.error(error);

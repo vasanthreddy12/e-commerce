@@ -17,7 +17,7 @@ const ProductDetails: React.FC = () => {
       getProduct(id);
     }
   }, [id]);
-
+  
   const handleQuantityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setQuantity(parseInt(e.target.value));
   };
@@ -58,7 +58,7 @@ const ProductDetails: React.FC = () => {
           <img
             src={product.image}
             alt={product.name}
-            className="w-full h-full object-cover object-center"
+            className="w-full  object-fit object-center"
           />
         </div>
 

@@ -8,7 +8,7 @@ import { shippingAddressSchema } from '../utils/validation.ts';
 const Checkout: React.FC = () => {
   const navigate = useNavigate();
   const { cart } = useCart();
-  const { createNewOrder, processPayment, loading, error } = useOrder();
+  const { createNewOrder, loading, error } = useOrder();
 
   if (!cart || cart.items.length === 0) {
     navigate('/cart');
@@ -23,11 +23,9 @@ const Checkout: React.FC = () => {
   }) => {
     try {
       // Create the order
-      const order = await createNewOrder(values);
-
-      // Process payment
-      if (order) {
-        await processPayment(order._id);
+      const result = await createNewOrder(values);
+      
+      if (result.success) {
         navigate('/order-success');
       }
     } catch (error) {
@@ -152,12 +150,18 @@ const Checkout: React.FC = () => {
               {cart.items.map((item) => (
                 <div
                   key={item.product._id}
-                  className="flex justify-between text-sm"
+                  className="flex items-center gap-4"
                 >
-                  <span>
-                    {item.product.name} x {item.quantity}
-                  </span>
-                  <span>₹{item.price * item.quantity}</span>
+                  <img 
+                    src={item.product.image} 
+                    alt={item.product.name}
+                    className="w-auto h-[150px] object-cover rounded-md"
+                  />
+                  <div className="flex-1">
+                    <h3 className="font-medium">{item.product.name}</h3>
+                    <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                    <p className="text-sm font-semibold">₹{item.price * item.quantity}</p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -180,6 +184,9 @@ const Checkout: React.FC = () => {
                   <span>Total</span>
                   <span>₹{total.toFixed(2)}</span>
                 </div>
+                <p className="text-sm text-gray-600 mt-2">
+                  Payment Method: Cash on Delivery
+                </p>
               </div>
             </div>
           </div>

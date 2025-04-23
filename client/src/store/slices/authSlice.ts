@@ -43,7 +43,8 @@ export const register = createAsyncThunk(
   }
 );
 
-export const getMe = createAsyncThunk('auth/getMe', async (_, { getState }) => {
+export const getMe = createAsyncThunk(
+  'auth/getMe', async (_, { getState }) => {
   const state = getState() as { auth: AuthState };
   const response = await axios.get('http://localhost:8080/api/auth/me', {
     headers: { Authorization: `Bearer ${state.auth.token}` },

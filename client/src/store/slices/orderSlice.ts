@@ -78,7 +78,7 @@ export const getOrder = createAsyncThunk(
   'order/getById',
   async (orderId: string) => {
     const response = await axios.get(`/api/orders/${orderId}`);
-    return response.data;
+    return response.data.order;
   }
 );
 
@@ -133,7 +133,7 @@ const orderSlice = createSlice({
       })
       .addCase(createOrder.fulfilled, (state, action) => {
         state.loading = false;
-        state.order = action.payload;
+        state.order = action.payload.order;
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.loading = false;

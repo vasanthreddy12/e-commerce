@@ -12,9 +12,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requireAdmin = false,
 }) => {
   const { isAuthenticated, isAdmin, loading } = useAuth();
-  console.log("Protected Route")
-  console.log(isAuthenticated,isAdmin);
-
+  
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">

@@ -1,7 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useOrder } from '../hooks/useOrder.ts';
 import { useAuth } from '../hooks/useAuth.ts';
+import { useDispatch } from 'react-redux';
+import { clearOrder } from '../store/slices/orderSlice.ts';
 
 const statusColors = {
   pending: 'bg-yellow-100 text-yellow-800',
@@ -11,16 +13,43 @@ const statusColors = {
   cancelled: 'bg-red-100 text-red-800',
 };
 
+const formatDate = (dateString: string | Date | undefined) => {
+  if (!dateString) return 'N/A';
+  try {
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  } catch (error) {
+    return 'Invalid Date';
+  }
+};
+
+const formatPrice = (price: number | undefined) => {
+  if (typeof price !== 'number') return '₹0.00';
+  return `₹${price.toFixed(2)}`;
+};
+
 const OrderDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { order, loading, error, getOrder, updateOrderStatus } = useOrder();
   const { isAdmin } = useAuth();
+  const dispatch = useDispatch();
+
+  const fetchOrder = useCallback(async () => {
+    if (id) {
+      await getOrder(id);
+    }
+  }, [id, getOrder]);
 
   useEffect(() => {
-    if (id) {
-      getOrder(id);
-    }
-  }, [id]);
+    fetchOrder();
+    return () => {
+      dispatch(clearOrder());
+    };
+  }, [fetchOrder, dispatch]);
 
   const handleStatusUpdate = async (newStatus: string) => {
     if (id) {
@@ -34,16 +63,36 @@ const OrderDetails: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="text-center py-8">Loading...</div>;
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">Loading...</div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-center py-8 text-red-600">{error}</div>;
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center text-red-600">{error}</div>
+      </div>
+    );
   }
 
   if (!order) {
-    return <div className="text-center py-8">Order not found</div>;
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Order not found</p>
+          <Link to="/orders" className="btn btn-primary">
+            Back to Orders
+          </Link>
+        </div>
+      </div>
+    );
   }
+
+  const orderStatus = order.status || 'pending';
+  const statusColor = statusColors[orderStatus as keyof typeof statusColors] || statusColors.pending;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -61,25 +110,16 @@ const OrderDetails: React.FC = () => {
               <div>
                 <h1 className="text-2xl font-bold mb-2">Order #{order._id}</h1>
                 <p className="text-gray-600">
-                  Placed on{' '}
-                  {new Date(order.createdAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
+                  Placed on {formatDate(order.createdAt)}
                 </p>
               </div>
               <div className="text-right">
-                <div
-                  className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                    statusColors[order.status as keyof typeof statusColors]
-                  }`}
-                >
-                  {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${statusColor}`}>
+                  {orderStatus.charAt(0).toUpperCase() + orderStatus.slice(1)}
                 </div>
                 {isAdmin && (
                   <select
-                    value={order.status}
+                    value={orderStatus}
                     onChange={(e) => handleStatusUpdate(e.target.value)}
                     className="block mt-2 input !w-auto"
                   >
@@ -96,19 +136,25 @@ const OrderDetails: React.FC = () => {
             <div className="border-t pt-6">
               <h2 className="text-lg font-bold mb-4">Items</h2>
               <div className="space-y-4">
-                {order.items.map((item) => (
+                {order.items?.map((item) => (
                   <div
                     key={item._id}
                     className="flex items-center gap-4 bg-gray-50 rounded-lg p-4"
                   >
-                    <img
-                      src={item.product.image}
-                      alt={item.name}
-                      className="w-16 h-16 object-cover rounded"
-                    />
+                    <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden">
+                      <img
+                        src={item.product?.image || '/placeholder-product.png'}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/placeholder-product.png';
+                        }}
+                      />
+                    </div>
                     <div className="flex-grow">
                       <Link
-                        to={`/products/${item.product._id}`}
+                        to={`/products/${item.product?._id}`}
                         className="font-medium hover:text-primary-600"
                       >
                         {item.name}
@@ -118,13 +164,16 @@ const OrderDetails: React.FC = () => {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium">₹{item.price}</p>
+                      <p className="font-medium">{formatPrice(item.price)}</p>
                       <p className="text-sm text-gray-600">
-                        Total: ₹{item.price * item.quantity}
+                        Total: {formatPrice(item.price * item.quantity)}
                       </p>
                     </div>
                   </div>
                 ))}
+                {(!order.items || order.items.length === 0) && (
+                  <p className="text-gray-600 text-center py-4">No items found in this order</p>
+                )}
               </div>
             </div>
           </div>
@@ -135,19 +184,19 @@ const OrderDetails: React.FC = () => {
             <div className="space-y-2">
               <p>
                 <span className="font-medium">Address:</span>{' '}
-                {order.shippingAddress.address}
+                {order.shippingAddress?.address || 'N/A'}
               </p>
               <p>
                 <span className="font-medium">City:</span>{' '}
-                {order.shippingAddress.city}
+                {order.shippingAddress?.city || 'N/A'}
               </p>
               <p>
                 <span className="font-medium">Postal Code:</span>{' '}
-                {order.shippingAddress.postalCode}
+                {order.shippingAddress?.postalCode || 'N/A'}
               </p>
               <p>
                 <span className="font-medium">Country:</span>{' '}
-                {order.shippingAddress.country}
+                {order.shippingAddress?.country || 'N/A'}
               </p>
             </div>
           </div>
@@ -161,20 +210,20 @@ const OrderDetails: React.FC = () => {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>₹{order.itemsPrice}</span>
+                <span>{formatPrice(order.itemsPrice)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>
-                <span>{order.shippingPrice === 0 ? 'Free' : `₹${order.shippingPrice}`}</span>
+                <span>{order.shippingPrice === 0 ? 'Free' : formatPrice(order.shippingPrice)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Tax (15%)</span>
-                <span>₹{order.taxPrice}</span>
+                <span>{formatPrice(order.taxPrice)}</span>
               </div>
               <div className="border-t pt-2 mt-2">
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>
-                  <span>₹{order.totalPrice}</span>
+                  <span>{formatPrice(order.totalPrice)}</span>
                 </div>
               </div>
             </div>
@@ -182,31 +231,24 @@ const OrderDetails: React.FC = () => {
             {order.isPaid ? (
               <div className="bg-green-50 text-green-800 p-4 rounded-lg">
                 <p className="font-medium">Paid</p>
-                <p className="text-sm">
-                  Paid on{' '}
-                  {new Date(order.paidAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </p>
+                {order.paidAt && (
+                  <p className="text-sm">
+                    Paid on {formatDate(order.paidAt)}
+                  </p>
+                )}
               </div>
             ) : (
               <div className="bg-yellow-50 text-yellow-800 p-4 rounded-lg">
                 <p className="font-medium">Payment Pending</p>
+                <p className="text-sm">Cash on Delivery</p>
               </div>
             )}
 
-            {order.isDelivered && (
+            {order.isDelivered && order.deliveredAt && (
               <div className="bg-green-50 text-green-800 p-4 rounded-lg">
                 <p className="font-medium">Delivered</p>
                 <p className="text-sm">
-                  Delivered on{' '}
-                  {new Date(order.deliveredAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
+                  Delivered on {formatDate(order.deliveredAt)}
                 </p>
               </div>
             )}

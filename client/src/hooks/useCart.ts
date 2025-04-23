@@ -41,7 +41,7 @@ export const useCart = () => {
 
   const removeItem = async (productId: string) => {
     try {
-      await dispatch(removeFromCart(productId)).unwrap();
+      const response = await dispatch(removeFromCart(productId)).unwrap();
     } catch (error) {
       console.error('Failed to remove item from cart:', error);
       throw error;

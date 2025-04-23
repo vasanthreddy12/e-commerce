@@ -73,7 +73,7 @@ const ProductList: React.FC = () => {
     <div className="container mx-auto px-4">
       {/* Filters and Search */}
       <div className="mb-8 space-y-4">
-        <form onSubmit={handleSearch} className="flex gap-4">
+        <form onSubmit={handleSearch} className="flex gap-4 mt-4">
           <input
             type="text"
             value={searchTerm}
@@ -138,7 +138,7 @@ const ProductList: React.FC = () => {
                 className="group"
               >
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                  <div className="aspect-w-1 aspect-h-1">
+                  <div className="h-[150px] overflow-hidden">
                     <img
                       src={product.image}
                       alt={product.name}
@@ -146,9 +146,15 @@ const ProductList: React.FC = () => {
                     />
                   </div>
                   <div className="p-4">
+                    <div className="flex justify-between">
                     <h3 className="text-lg font-medium text-gray-900 mb-2">
                       {product.name}
                     </h3>
+                    {product.stock === 0 && (
+                      <p className="text-md text-red-600 mb-2">Out of stock</p>
+                    )}
+                    </div>
+                  
                     <div className="flex items-center justify-between">
                       <span className="text-xl font-bold text-gray-900">
                         ₹{product.price}
@@ -160,9 +166,6 @@ const ProductList: React.FC = () => {
                         </span>
                       </div>
                     </div>
-                    {product.stock === 0 && (
-                      <p className="mt-2 text-sm text-red-600">Out of stock</p>
-                    )}
                   </div>
                 </div>
               </Link>

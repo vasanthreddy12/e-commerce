@@ -1,5 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useProducts } from '../../hooks/useProducts.ts';
+import axios from 'axios';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
+
+interface Product {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  image: string;
+  stock: number;
+  rating: number;
+  numReviews: number;
+}
 
 interface ProductFormData {
   name: string;
@@ -11,9 +25,13 @@ interface ProductFormData {
 }
 
 const AdminProducts: React.FC = () => {
-  const { products, loading, error, addProduct, editProduct, removeProduct } = useProducts();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const token = useSelector((state: RootState) => state.auth.token);
+  
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     description: '',
@@ -22,6 +40,25 @@ const AdminProducts: React.FC = () => {
     image: '',
     stock: 0
   });
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('http://localhost:8080/api/products', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setProducts(response.data.products);
+      setError(null);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to fetch products');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, [token]);
 
   const resetForm = () => {
     setFormData({
@@ -35,7 +72,7 @@ const AdminProducts: React.FC = () => {
     setEditingProduct(null);
   };
 
-  const handleOpenModal = (product?: any) => {
+  const handleOpenModal = (product?: Product) => {
     if (product) {
       setEditingProduct(product);
       setFormData({
@@ -61,22 +98,34 @@ const AdminProducts: React.FC = () => {
     e.preventDefault();
     try {
       if (editingProduct) {
-        await editProduct(editingProduct._id, formData);
+        await axios.put(
+          `http://localhost:8080/api/products/${editingProduct._id}`,
+          formData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
       } else {
-        await addProduct(formData);
+        await axios.post(
+          'http://localhost:8080/api/products',
+          { ...formData, rating: 0, numReviews: 0 },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
       }
+      fetchProducts();
       handleCloseModal();
-    } catch (err) {
-      console.error('Error saving product:', err);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Error saving product');
     }
   };
 
   const handleDelete = async (productId: string) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        await removeProduct(productId);
-      } catch (err) {
-        console.error('Error deleting product:', err);
+        await axios.delete(`http://localhost:8080/api/products/${productId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        fetchProducts();
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Error deleting product');
       }
     }
   };
@@ -110,7 +159,7 @@ const AdminProducts: React.FC = () => {
             </tr>
           </thead>
           <tbody className="table-body">
-            {products?.map((product: any) => (
+            {products.map((product) => (
               <tr key={product._id}>
                 <td className="table-body-cell">
                   <img
@@ -198,9 +247,11 @@ const AdminProducts: React.FC = () => {
                   <option value="">Select a category</option>
                   <option value="electronics">Electronics</option>
                   <option value="clothing">Fashion</option>
-                  <option value="home">Home</option>
                   <option value="books">Books</option>
+                  <option value="home">Home & Living</option>
+                  <option value="beauty">Beauty</option>
                   <option value="sports">Sports</option>
+                  <option value="toys">Toys</option>
                   <option value="other">Other</option>
                 </select>
               </div>
@@ -227,7 +278,7 @@ const AdminProducts: React.FC = () => {
                   required
                 />
               </div>
-              <div className="flex justify-end space-x-2">
+              <div className="flex justify-end space-x-4">
                 <button
                   type="button"
                   onClick={handleCloseModal}
@@ -239,7 +290,7 @@ const AdminProducts: React.FC = () => {
                   type="submit"
                   className="btn btn-primary"
                 >
-                  {editingProduct ? 'Update' : 'Add'} Product
+                  {editingProduct ? 'Update' : 'Create'}
                 </button>
               </div>
             </form>

@@ -127,7 +127,7 @@ exports.updateCartItem = async (req, res) => {
 // @access  Private
 exports.removeFromCart = async (req, res) => {
   try {
-    const cart = await Cart.findOne({ user: req.user.id });
+    let cart = await Cart.findOne({ user: req.user.id });
     
     if (!cart) {
       return res.status(404).json({ message: 'Cart not found' });
@@ -135,6 +135,9 @@ exports.removeFromCart = async (req, res) => {
 
     cart.items = cart.items.filter(item => item.product.toString() !== req.params.productId);
     await cart.save();
+    
+    // Populate the product data after saving
+    cart = await cart.populate('items.product');
 
     res.json({ success: true, cart });
   } catch (error) {

@@ -125,11 +125,17 @@ const Orders: React.FC = () => {
                 <div className="flex flex-wrap gap-4">
                   {order.items.map((item) => (
                     <div key={item._id} className="flex items-center gap-2">
-                      <img
-                        src={item.product.image}
-                        alt={item.name}
-                        className="w-12 h-12 object-cover rounded"
-                      />
+                      <div className="w-12 h-12 bg-gray-100 rounded overflow-hidden">
+                        <img
+                          src={item.product?.image || '/placeholder-product.png'}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = '/placeholder-product.png';
+                          }}
+                        />
+                      </div>
                       <div>
                         <p className="font-medium">{item.name}</p>
                         <p className="text-sm text-gray-600">
@@ -141,7 +147,7 @@ const Orders: React.FC = () => {
                 </div>
               </div>
 
-              {order.status === 'delivered' && (
+              {order.status === 'delivered' && order.deliveredAt && (
                 <div className="mt-4 text-sm text-green-600">
                   Delivered on{' '}
                   {new Date(order.deliveredAt).toLocaleDateString('en-US', {

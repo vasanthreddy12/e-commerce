@@ -2,9 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useProducts } from '../hooks/useProducts.ts';
 
-const Home: React.FC = () => {
-  const { products, loading, error } = useProducts();
-
+const Home:   React.FC =  () => {
+  const { products, loading, error } =  useProducts();
   const featuredProducts = products?.slice(0, 6) || [];
 
   const categories = [
@@ -13,7 +12,7 @@ const Home: React.FC = () => {
     { name: 'Home', image: '/images/home.jpg' },
     { name: 'Books', image: '/images/books.jpg' },
     { name: 'Sports', image: '/images/sports.jpg' },
-    { name: 'Other', image: '/images/other.jpg' }
+    { name: 'Other', image: '/images/other.jpeg' }
   ];
 
   if (loading) return <div className="text-center py-8">Loading...</div>;
@@ -67,11 +66,11 @@ const Home: React.FC = () => {
             {featuredProducts.map((product) => (
               <div key={product._id} className="card group">
                 <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-200 mb-4">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="object-cover object-center group-hover:scale-105 transition-transform duration-200"
-                  />
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-[200px] object-cover object-center group-hover:scale-105 transition-transform duration-200"
+                 />
                 </div>
                 <h3 className="text-lg font-medium mb-2">{product.name}</h3>
                 <p className="text-gray-600 mb-2 line-clamp-2">{product.description}</p>

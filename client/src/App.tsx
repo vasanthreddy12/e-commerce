@@ -13,6 +13,7 @@ import Checkout from './pages/Checkout.tsx';
 import OrderSuccess from './pages/OrderSuccess.tsx';
 import Profile from './pages/Profile.tsx';
 import Orders from './pages/Orders.tsx';
+import OrderDetails from './pages/OrderDetails.tsx';
 import AdminDashboard from './pages/admin/Dashboard.tsx';
 import AdminProducts from './pages/admin/Products.tsx';
 import AdminOrders from './pages/admin/Orders.tsx';
@@ -36,9 +37,7 @@ const App: React.FC = () => {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/products" element={<ProductList />} />
-            <Route path="/products/:id" element={<ProductDetails />} />
-            <Route path="/cart" element={<Cart />} />
+            
             
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
@@ -46,6 +45,10 @@ const App: React.FC = () => {
               <Route path="/order-success" element={<OrderSuccess />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/orders" element={<Orders />} />
+              <Route path="/orders/:id" element={<OrderDetails />} />
+              <Route path="/products" element={<ProductList />} />
+            <Route path="/products/:id" element={<ProductDetails />} />
+            <Route path="/cart" element={<Cart />} />
             </Route>
 
             {/* Admin Routes */}

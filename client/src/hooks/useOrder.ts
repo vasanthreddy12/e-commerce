@@ -1,4 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux';
+import { useCallback } from 'react';
 import { AppDispatch, RootState } from '../store';
 import {
   createOrder,
@@ -22,7 +23,7 @@ export const useOrder = () => {
   } = useSelector((state: RootState) => state.order);
   const { user } = useAuth();
 
-  const createNewOrder = async (shippingAddress: {
+  const createNewOrder = useCallback(async (shippingAddress: {
     address: string;
     city: string;
     postalCode: string;
@@ -30,32 +31,32 @@ export const useOrder = () => {
   }) => {
     const result = await dispatch(createOrder(shippingAddress)).unwrap();
     return result;
-  };
+  }, [dispatch]);
 
-  const getOrderById = async (orderId: string) => {
+  const getOrderById = useCallback(async (orderId: string) => {
     const result = await dispatch(getOrder(orderId)).unwrap();
     return result;
-  };
+  }, [dispatch]);
 
-  const fetchMyOrders = async () => {
+  const fetchMyOrders = useCallback(async () => {
     const result = await dispatch(getMyOrders()).unwrap();
     return result;
-  };
+  }, [dispatch]);
 
-  const fetchAllOrders = async () => {
+  const fetchAllOrders = useCallback(async () => {
     const result = await dispatch(getAllOrders()).unwrap();
     return result;
-  };
+  }, [dispatch]);
 
-  const updateOrderStatus = async (orderId: string, status: string) => {
+  const updateOrderStatus = useCallback(async (orderId: string, status: string) => {
     const result = await dispatch(updateOrder({ orderId, status })).unwrap();
     return result;
-  };
+  }, [dispatch]);
 
-  const processPayment = async (orderId: string) => {
+  const processPayment = useCallback(async (orderId: string) => {
     const result = await dispatch(createRazorpayOrder(orderId)).unwrap();
     return result;
-  };
+  }, [dispatch]);
 
   return {
     orders,

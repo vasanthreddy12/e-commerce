@@ -6,8 +6,7 @@ import { getMe, logout as logoutAction } from '../store/slices/authSlice.ts';
 export const useAuth = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { user, token, loading, error } = useSelector((state: RootState) => state.auth);
-  console.log(useSelector((state: RootState) => state.auth));
-  console.log(user,token);
+  
   useEffect(() => {
     if (token && !user) {
       dispatch(getMe());
@@ -18,7 +17,7 @@ export const useAuth = () => {
     dispatch(logoutAction());
   };
 
-  return {
+  return { 
     user,
     token,
     loading,

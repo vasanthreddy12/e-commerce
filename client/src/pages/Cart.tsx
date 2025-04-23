@@ -10,7 +10,8 @@ const Cart: React.FC = () => {
     if (!loading && !error && cart?.items.length === 0) {
       navigate('/products');
     }
-  }, [cart?.items.length, loading, error]);
+    console.log(cart,"cart");
+  }, [cart?.items.length, loading, error, navigate]);
 
   const handleQuantityChange = async (productId: string, quantity: number) => {
     try {
@@ -26,6 +27,11 @@ const Cart: React.FC = () => {
     } catch (error) {
       console.error('Failed to remove item:', error);
     }
+  };
+
+  const getQuantityOptions = (stock: number) => {
+    const maxQuantity = Math.max(1, Math.min(10, stock || 0));
+    return Array.from({ length: maxQuantity }, (_, i) => i + 1);
   };
 
   if (loading) {
@@ -91,11 +97,11 @@ const Cart: React.FC = () => {
                       parseInt(e.target.value)
                     )
                   }
-                  className="input !w-20"
+                  className="input w-20"
                 >
-                  {[...Array(Math.min(10, item.product.stock))].map((_, i) => (
-                    <option key={i + 1} value={i + 1}>
-                      {i + 1}
+                  {getQuantityOptions(item.product.stock).map((quantity) => (
+                    <option key={quantity} value={quantity}>
+                      {quantity}
                     </option>
                   ))}
                 </select>
@@ -148,17 +154,18 @@ const Cart: React.FC = () => {
                 </div>
               </div>
             </div>
+            <div className="flex justify-center gap-2 text-center">
+              <Link to="/checkout" className="btn btn-primary w-full rounded-lg">
+                Checkout
+              </Link>
 
-            <Link to="/checkout" className="btn btn-primary w-full">
-              Proceed to Checkout
-            </Link>
-
-            <Link
-              to="/products"
-              className="btn btn-secondary w-full"
-            >
-              Continue Shopping
-            </Link>
+              <Link
+                to="/products"
+                className="btn btn-secondary w-full rounded-lg"
+              >
+                Back
+              </Link>
+            </div>
           </div>
         </div>
       </div>

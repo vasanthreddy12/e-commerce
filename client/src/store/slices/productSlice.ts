@@ -31,6 +31,7 @@ const initialState: ProductState = {
   currentPage: 1,
 };
 
+
 export const fetchProducts = createAsyncThunk(
   'product/fetchProducts',
   async (params: { page?: number; category?: string; search?: string; sort?: string }) => {

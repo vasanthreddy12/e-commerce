@@ -8,6 +8,18 @@ import {
   deleteProduct,
 } from '../store/slices/productSlice.ts';
 
+interface Product {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  image: string;
+  stock: number;
+  rating: number;
+  numReviews: number;
+}
+
 export const useProducts = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { products, product, loading, error, totalPages, currentPage } = useSelector(
@@ -37,30 +49,23 @@ export const useProducts = () => {
     }
   };
 
-  const addProduct = async (productData: {
-    name: string;
-    description: string;
-    price: number;
-    category: string;
-    image: string;
-    stock: number;
-  }) => {
+  type NewProductData = Omit<Product, '_id' | 'rating' | 'numReviews'>;
+
+  const addProduct = async (productData: NewProductData) => {
     try {
-      await dispatch(createProduct(productData)).unwrap();
+      const newProduct = {
+        ...productData,
+        rating: 0,
+        numReviews: 0
+      };
+      await dispatch(createProduct(newProduct)).unwrap();
     } catch (error) {
       console.error('Failed to create product:', error);
       throw error;
     }
   };
 
-  const editProduct = async (id: string, productData: {
-    name?: string;
-    description?: string;
-    price?: number;
-    category?: string;
-    image?: string;
-    stock?: number;
-  }) => {
+  const editProduct = async (id: string, productData: Partial<NewProductData>) => {
     try {
       await dispatch(updateProduct({ id, productData })).unwrap();
     } catch (error) {

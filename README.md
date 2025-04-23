@@ -42,12 +42,12 @@ MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_key_secret
-PORT=5000
+PORT=8080
 ```
 
 ### Frontend (.env)
 ```
-REACT_APP_API_URL=http://localhost:5000
+REACT_APP_API_URL=http://localhost:8080
 REACT_APP_RAZORPAY_KEY_ID=your_razorpay_key_id
 ```
 
@@ -69,7 +69,7 @@ npm run install:all
 npm run dev
 ```
 
-The frontend will run on http://localhost:3000 and the backend on http://localhost:5000
+The frontend will run on http://localhost:3000 and the backend on http://localhost:8080
 
 ## Project Structure
 
@@ -92,7 +92,7 @@ The frontend will run on http://localhost:3000 and the backend on http://localho
 
 ## API Documentation
 
-The API documentation will be available at http://localhost:5000/api-docs when running in development mode.
+The API documentation will be available at http://localhost:8080/api-docs when running in development mode.
 
 ## Contributing
 

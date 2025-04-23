@@ -42,7 +42,7 @@ export const fetchProducts = createAsyncThunk(
     queryParams.append('page', page.toString());
 
     const response = await axios.get(
-      `http://localhost:5000/api/products?${queryParams.toString()}`
+      `http://localhost:8080/api/products?${queryParams.toString()}`
     );
     return response.data;
   }
@@ -51,7 +51,7 @@ export const fetchProducts = createAsyncThunk(
 export const fetchProductById = createAsyncThunk(
   'product/fetchProductById',
   async (id: string) => {
-    const response = await axios.get(`http://localhost:5000/api/products/${id}`);
+    const response = await axios.get(`http://localhost:8080/api/products/${id}`);
     return response.data.product;
   }
 );
@@ -60,7 +60,7 @@ export const createProduct = createAsyncThunk(
   'product/createProduct',
   async (productData: Omit<Product, '_id'>, { getState }) => {
     const state = getState() as { auth: { token: string } };
-    const response = await axios.post('http://localhost:5000/api/products', productData, {
+    const response = await axios.post('http://localhost:8080/api/products', productData, {
       headers: { Authorization: `Bearer ${state.auth.token}` },
     });
     return response.data.product;
@@ -71,7 +71,7 @@ export const updateProduct = createAsyncThunk(
   'product/updateProduct',
   async ({ id, productData }: { id: string; productData: Partial<Product> }, { getState }) => {
     const state = getState() as { auth: { token: string } };
-    const response = await axios.put(`http://localhost:5000/api/products/${id}`, productData, {
+    const response = await axios.put(`http://localhost:8080/api/products/${id}`, productData, {
       headers: { Authorization: `Bearer ${state.auth.token}` },
     });
     return response.data.product;
@@ -82,7 +82,7 @@ export const deleteProduct = createAsyncThunk(
   'product/deleteProduct',
   async (id: string, { getState }) => {
     const state = getState() as { auth: { token: string } };
-    await axios.delete(`http://localhost:5000/api/products/${id}`, {
+    await axios.delete(`http://localhost:8080/api/products/${id}`, {
       headers: { Authorization: `Bearer ${state.auth.token}` },
     });
     return id;

@@ -25,7 +25,7 @@ const initialState: AuthState = {
 export const login = createAsyncThunk(
   'auth/login',
   async (credentials: { email: string; password: string }) => {
-    const response = await axios.post('http://localhost:5000/api/auth/login', credentials);
+    const response = await axios.post('http://localhost:8080/api/auth/login', credentials);
     const { token, user } = response.data;
     localStorage.setItem('token', token);
     return { token, user };
@@ -35,7 +35,8 @@ export const login = createAsyncThunk(
 export const register = createAsyncThunk(
   'auth/register',
   async (userData: { name: string; email: string; password: string }) => {
-    const response = await axios.post('http://localhost:5000/api/auth/register', userData);
+    const response = await axios.post('http://localhost:8080/api/auth/register', userData);
+    console.log("Hi");
     const { token, user } = response.data;
     localStorage.setItem('token', token);
     return { token, user };
@@ -44,7 +45,7 @@ export const register = createAsyncThunk(
 
 export const getMe = createAsyncThunk('auth/getMe', async (_, { getState }) => {
   const state = getState() as { auth: AuthState };
-  const response = await axios.get('http://localhost:5000/api/auth/me', {
+  const response = await axios.get('http://localhost:8080/api/auth/me', {
     headers: { Authorization: `Bearer ${state.auth.token}` },
   });
   return response.data.user;

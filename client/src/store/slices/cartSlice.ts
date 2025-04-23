@@ -36,7 +36,7 @@ export const fetchCart = createAsyncThunk(
   'cart/fetchCart',
   async (_, { getState }) => {
     const state = getState() as { auth: { token: string } };
-    const response = await axios.get('http://localhost:5000/api/cart', {
+    const response = await axios.get('http://localhost:8080/api/cart', {
       headers: { Authorization: `Bearer ${state.auth.token}` },
     });
     return response.data.cart;
@@ -48,7 +48,7 @@ export const addToCart = createAsyncThunk(
   async ({ productId, quantity }: { productId: string; quantity: number }, { getState }) => {
     const state = getState() as { auth: { token: string } };
     const response = await axios.post(
-      'http://localhost:5000/api/cart',
+      'http://localhost:8080/api/cart',
       { productId, quantity },
       {
         headers: { Authorization: `Bearer ${state.auth.token}` },
@@ -63,7 +63,7 @@ export const updateCartItem = createAsyncThunk(
   async ({ productId, quantity }: { productId: string; quantity: number }, { getState }) => {
     const state = getState() as { auth: { token: string } };
     const response = await axios.put(
-      `http://localhost:5000/api/cart/${productId}`,
+      `http://localhost:8080/api/cart/${productId}`,
       { quantity },
       {
         headers: { Authorization: `Bearer ${state.auth.token}` },
@@ -77,7 +77,7 @@ export const removeFromCart = createAsyncThunk(
   'cart/removeFromCart',
   async (productId: string, { getState }) => {
     const state = getState() as { auth: { token: string } };
-    const response = await axios.delete(`http://localhost:5000/api/cart/${productId}`, {
+    const response = await axios.delete(`http://localhost:8080/api/cart/${productId}`, {
       headers: { Authorization: `Bearer ${state.auth.token}` },
     });
     return response.data.cart;
@@ -88,7 +88,7 @@ export const clearCart = createAsyncThunk(
   'cart/clearCart',
   async (_, { getState }) => {
     const state = getState() as { auth: { token: string } };
-    await axios.delete('http://localhost:5000/api/cart', {
+    await axios.delete('http://localhost:8080/api/cart', {
       headers: { Authorization: `Bearer ${state.auth.token}` },
     });
     return null;

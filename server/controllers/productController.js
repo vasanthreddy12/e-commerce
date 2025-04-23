@@ -7,6 +7,7 @@ const { validationResult } = require('express-validator');
 exports.getProducts = async (req, res) => {
   try {
     const { category, search, sort, page = 1, limit = 10 } = req.query;
+    console.log(category, search, sort, page, limit);
     const query = {};
 
     // Filter by category

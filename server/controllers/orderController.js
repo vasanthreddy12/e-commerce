@@ -20,6 +20,7 @@ exports.createOrder = async (req, res) => {
     }
 
     const { shippingAddress } = req.body;
+    //console.log(shippingAddress);
 
     // Get user's cart
     const cart = await Cart.findOne({ user: req.user.id }).populate('items.product');

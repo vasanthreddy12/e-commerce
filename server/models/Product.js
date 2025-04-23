@@ -20,7 +20,7 @@ const productSchema = new mongoose.Schema({
   category: {
     type: String,
     required: [true, 'Please add a category'],
-    enum: ['Electronics', 'Fashion', 'Books', 'Home', 'Sports', 'Other']
+    enum: ['electronics', 'clothing', 'books', 'home', 'sports', 'other']
   },
   image: {
     type: String,
@@ -49,5 +49,7 @@ const productSchema = new mongoose.Schema({
 
 // Add index for search functionality
 productSchema.index({ name: 'text', description: 'text' });
+
+const categories = ['all', 'electronics', 'clothing', 'books', 'home', 'sports', 'other'];
 
 module.exports = mongoose.model('Product', productSchema); 

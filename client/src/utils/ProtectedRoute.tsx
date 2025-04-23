@@ -12,7 +12,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requireAdmin = false,
 }) => {
   const { isAuthenticated, isAdmin, loading } = useAuth();
-  console.log("Hii")
+  console.log("Protected Route")
   console.log(isAuthenticated,isAdmin);
 
   if (loading) {
@@ -23,13 +23,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  // if (!isAuthenticated) {
-  //   return <Navigate to="/login" />;
-  // }
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
 
-  // if (requireAdmin && !isAdmin) {
-  //   return <Navigate to="/" />;
-  // }
+  if (requireAdmin && !isAdmin) {
+    return <Navigate to="/" />;
+  }
 
   return <>{children}</>;
 };

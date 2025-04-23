@@ -196,12 +196,12 @@ const AdminProducts: React.FC = () => {
                   required
                 >
                   <option value="">Select a category</option>
-                  <option value="Electronics">Electronics</option>
-                  <option value="Fashion">Fashion</option>
-                  <option value="Home">Home</option>
-                  <option value="Books">Books</option>
-                  <option value="Sports">Sports</option>
-                  <option value="Other">Other</option>
+                  <option value="electronics">Electronics</option>
+                  <option value="clothing">Fashion</option>
+                  <option value="home">Home</option>
+                  <option value="books">Books</option>
+                  <option value="sports">Sports</option>
+                  <option value="other">Other</option>
                 </select>
               </div>
               <div className="form-group">

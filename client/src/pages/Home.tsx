@@ -9,7 +9,7 @@ const Home: React.FC = () => {
 
   const categories = [
     { name: 'Electronics', image: '/images/electronics.jpg' },
-    { name: 'Fashion', image: '/images/fashion.jpg' },
+    { name: 'Clothing', image: '/images/fashion.jpg' },
     { name: 'Home', image: '/images/home.jpg' },
     { name: 'Books', image: '/images/books.jpg' },
     { name: 'Sports', image: '/images/sports.jpg' },
@@ -42,7 +42,7 @@ const Home: React.FC = () => {
             {categories.map((category) => (
               <Link
                 key={category.name}
-                to={`/products?category=${category.name}`}
+                to={`/products?category=${category.name.toLowerCase()}`}
                 className="group relative rounded-lg overflow-hidden shadow-md aspect-w-16 aspect-h-9"
               >
                 <img

@@ -10,8 +10,10 @@ const Home: React.FC = () => {
   const categories = [
     { name: 'Electronics', image: '/images/electronics.jpg' },
     { name: 'Fashion', image: '/images/fashion.jpg' },
-    { name: 'Home & Living', image: '/images/home.jpg' },
-    { name: 'Books', image: '/images/books.jpg' }
+    { name: 'Home', image: '/images/home.jpg' },
+    { name: 'Books', image: '/images/books.jpg' },
+    { name: 'Sports', image: '/images/sports.jpg' },
+    { name: 'Other', image: '/images/other.jpg' }
   ];
 
   if (loading) return <div className="text-center py-8">Loading...</div>;

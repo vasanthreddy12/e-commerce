@@ -1,84 +1,95 @@
-import React, { useEffect, useState } from 'react';
-import { Formik, Form, Field } from 'formik';
+import React, { useState, useEffect } from 'react';
 import { useProducts } from '../../hooks/useProducts.ts';
-import { productSchema } from '../../utils/validation.ts';
 
-interface ProductFormValues {
+interface ProductFormData {
   name: string;
   description: string;
-  price: string;
+  price: number;
   category: string;
   image: string;
-  stock: string;
+  stock: number;
 }
 
 const AdminProducts: React.FC = () => {
-  const {
-    products,
-    loading,
-    error,
-    getProducts,
-    addProduct,
-    editProduct,
-    removeProduct,
-  } = useProducts();
-  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const { products, loading, error, addProduct, editProduct, removeProduct } = useProducts();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [formData, setFormData] = useState<ProductFormData>({
+    name: '',
+    description: '',
+    price: 0,
+    category: '',
+    image: '',
+    stock: 0
+  });
 
-  useEffect(() => {
-    getProducts({});
-  }, []);
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      description: '',
+      price: 0,
+      category: '',
+      image: '',
+      stock: 0
+    });
+    setEditingProduct(null);
+  };
 
-  const handleAddProduct = async (values: ProductFormValues, { resetForm }: any) => {
-    try {
-      await addProduct({
-        ...values,
-        price: Number(values.price),
-        stock: Number(values.stock)
+  const handleOpenModal = (product?: any) => {
+    if (product) {
+      setEditingProduct(product);
+      setFormData({
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        category: product.category,
+        image: product.image,
+        stock: product.stock
       });
+    } else {
       resetForm();
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error('Failed to add product:', error);
     }
+    setIsModalOpen(true);
   };
 
-  const handleEditProduct = async (values: ProductFormValues, { resetForm }: any) => {
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    resetForm();
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      if (editingProduct?._id) {
-        await editProduct(editingProduct._id, {
-          ...values,
-          price: Number(values.price),
-          stock: Number(values.stock)
-        });
-        resetForm();
-        setEditingProduct(null);
-        setIsModalOpen(false);
+      if (editingProduct) {
+        await editProduct(editingProduct._id, formData);
+      } else {
+        await addProduct(formData);
       }
-    } catch (error) {
-      console.error('Failed to edit product:', error);
+      handleCloseModal();
+    } catch (err) {
+      console.error('Error saving product:', err);
     }
   };
 
-  const handleDeleteProduct = async (productId: string) => {
+  const handleDelete = async (productId: string) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
         await removeProduct(productId);
-      } catch (error) {
-        console.error('Failed to delete product:', error);
+      } catch (err) {
+        console.error('Error deleting product:', err);
       }
     }
   };
 
+  if (loading) return <div className="text-center py-8">Loading...</div>;
+  if (error) return <div className="text-center py-8 text-red-600">{error}</div>;
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Manage Products</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Manage Products</h1>
         <button
-          onClick={() => {
-            setEditingProduct(null);
-            setIsModalOpen(true);
-          }}
+          onClick={() => handleOpenModal()}
           className="btn btn-primary"
         >
           Add New Product
@@ -86,251 +97,152 @@ const AdminProducts: React.FC = () => {
       </div>
 
       {/* Products Table */}
-      {loading ? (
-        <div className="text-center py-8">Loading...</div>
-      ) : error ? (
-        <div className="text-center py-8 text-red-600">{error}</div>
-      ) : (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Product
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Category
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Price
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Stock
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {products?.map((product) => (
-                  <tr key={product._id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {product.name}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            Rating: {product.rating} ({product.numReviews} reviews)
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 capitalize">
-                        {product.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      ₹{product.price}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          product.stock === 0
-                            ? 'bg-red-100 text-red-800'
-                            : product.stock < 10
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-green-100 text-green-800'
-                        }`}
-                      >
-                        {product.stock} in stock
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        onClick={() => {
-                          setEditingProduct(product);
-                          setIsModalOpen(true);
-                        }}
-                        className="text-primary-600 hover:text-primary-900 mr-4"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteProduct(product._id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      <div className="overflow-x-auto">
+        <table className="table">
+          <thead className="table-header">
+            <tr>
+              <th className="table-header-cell">Image</th>
+              <th className="table-header-cell">Name</th>
+              <th className="table-header-cell">Category</th>
+              <th className="table-header-cell">Price</th>
+              <th className="table-header-cell">Stock</th>
+              <th className="table-header-cell">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="table-body">
+            {products?.map((product: any) => (
+              <tr key={product._id}>
+                <td className="table-body-cell">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-16 h-16 object-cover rounded"
+                  />
+                </td>
+                <td className="table-body-cell">{product.name}</td>
+                <td className="table-body-cell">{product.category}</td>
+                <td className="table-body-cell">${product.price}</td>
+                <td className="table-body-cell">{product.stock}</td>
+                <td className="table-body-cell space-x-2">
+                  <button
+                    onClick={() => handleOpenModal(product)}
+                    className="btn btn-secondary"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(product._id)}
+                    className="btn btn-danger"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      {/* Product Form Modal */}
+      {/* Add/Edit Product Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-lg w-full p-6">
-            <h2 className="text-2xl font-bold mb-6">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h2 className="text-xl font-bold mb-4">
               {editingProduct ? 'Edit Product' : 'Add New Product'}
             </h2>
-
-            <Formik<ProductFormValues>
-              initialValues={
-                editingProduct || {
-                  name: '',
-                  description: '',
-                  price: '',
-                  category: '',
-                  image: '',
-                  stock: '',
-                }
-              }
-              validationSchema={productSchema}
-              onSubmit={editingProduct ? handleEditProduct : handleAddProduct}
-            >
-              {({ errors, touched, isSubmitting }) => (
-                <Form className="space-y-4">
-                  <div>
-                    <label htmlFor="name" className="label">
-                      Product Name
-                    </label>
-                    <Field
-                      id="name"
-                      name="name"
-                      type="text"
-                      className="input mt-1"
-                    />
-                    {errors.name && touched.name && (
-                      <p className="mt-1 text-sm text-red-600">{String(errors.name)}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label htmlFor="description" className="label">
-                      Description
-                    </label>
-                    <Field
-                      as="textarea"
-                      id="description"
-                      name="description"
-                      rows={3}
-                      className="input mt-1"
-                    />
-                    {errors.description && touched.description && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {String(errors.description)}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="price" className="label">
-                        Price
-                      </label>
-                      <Field
-                        id="price"
-                        name="price"
-                        type="number"
-                        className="input mt-1"
-                      />
-                      {errors.price && touched.price && (
-                        <p className="mt-1 text-sm text-red-600">{String(errors.price)}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label htmlFor="stock" className="label">
-                        Stock
-                      </label>
-                      <Field
-                        id="stock"
-                        name="stock"
-                        type="number"
-                        className="input mt-1"
-                      />
-                      {errors.stock && touched.stock && (
-                        <p className="mt-1 text-sm text-red-600">{String(errors.stock)}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="category" className="label">
-                      Category
-                    </label>
-                    <Field
-                      as="select"
-                      id="category"
-                      name="category"
-                      className="input mt-1"
-                    >
-                      <option value="">Select a category</option>
-                      <option value="electronics">Electronics</option>
-                      <option value="clothing">Clothing</option>
-                      <option value="books">Books</option>
-                      <option value="home">Home</option>
-                      <option value="sports">Sports</option>
-                      <option value="other">Other</option>
-                    </Field>
-                    {errors.category && touched.category && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {String(errors.category)}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label htmlFor="image" className="label">
-                      Image URL
-                    </label>
-                    <Field
-                      id="image"
-                      name="image"
-                      type="text"
-                      className="input mt-1"
-                    />
-                    {errors.image && touched.image && (
-                      <p className="mt-1 text-sm text-red-600">{String(errors.image)}</p>
-                    )}
-                  </div>
-
-                  <div className="flex justify-end gap-4 mt-6">
-                    <button
-                      type="button"
-                      onClick={() => setIsModalOpen(false)}
-                      className="btn btn-secondary"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="btn btn-primary"
-                    >
-                      {isSubmitting
-                        ? 'Saving...'
-                        : editingProduct
-                        ? 'Save Changes'
-                        : 'Add Product'}
-                    </button>
-                  </div>
-                </Form>
-              )}
-            </Formik>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="form-group">
+                <label htmlFor="name" className="label">Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="input"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="description" className="label">Description</label>
+                <textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="input"
+                  rows={3}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="price" className="label">Price</label>
+                <input
+                  type="number"
+                  id="price"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+                  className="input"
+                  min="0"
+                  step="0.01"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="category" className="label">Category</label>
+                <select
+                  id="category"
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="input"
+                  required
+                >
+                  <option value="">Select a category</option>
+                  <option value="Electronics">Electronics</option>
+                  <option value="Fashion">Fashion</option>
+                  <option value="Home">Home</option>
+                  <option value="Books">Books</option>
+                  <option value="Sports">Sports</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="image" className="label">Image URL</label>
+                <input
+                  type="url"
+                  id="image"
+                  value={formData.image}
+                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                  className="input"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="stock" className="label">Stock</label>
+                <input
+                  type="number"
+                  id="stock"
+                  value={formData.stock}
+                  onChange={(e) => setFormData({ ...formData, stock: Number(e.target.value) })}
+                  className="input"
+                  min="0"
+                  required
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="btn btn-secondary"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                >
+                  {editingProduct ? 'Update' : 'Add'} Product
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -32,7 +32,8 @@ const Login: React.FC = () => {
           validationSchema={loginSchema}
           onSubmit={async (values, { setSubmitting }) => {
             try {
-              await dispatch(login(values)).unwrap();
+              const p=await dispatch(login(values)).unwrap();
+              //console.log(p);
               navigate('/');
             } catch (error) {
               console.error('Login failed:', error);

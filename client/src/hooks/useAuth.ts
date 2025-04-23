@@ -6,7 +6,7 @@ import { getMe } from '../store/slices/authSlice.ts';
 export const useAuth = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { user, token, loading, error } = useSelector((state: RootState) => state.auth);
-
+  console.log(user,token);
   useEffect(() => {
     if (token && !user) {
       dispatch(getMe());
@@ -18,7 +18,7 @@ export const useAuth = () => {
     token,
     loading,
     error,
-    isAuthenticated: !!token && !!user,
+    isAuthenticated: token && user,
     isAdmin: user?.role === 'admin',
   };
 }; 

@@ -41,9 +41,9 @@ const AdminOrders: React.FC = () => {
       case 'date-desc':
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       case 'price-asc':
-        return a.totalPrice - b.totalPrice;
+        return a.total - b.total;
       case 'price-desc':
-        return b.totalPrice - a.totalPrice;
+        return b.total - a.total;
       default:
         return 0;
     }
@@ -138,15 +138,12 @@ const AdminOrders: React.FC = () => {
                       <div className="text-sm text-gray-900">
                         {order.user.name}
                       </div>
-                      <div className="text-sm text-gray-500">
-                        {order.user.email}
-                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {new Date(order.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      ₹{order.totalPrice}
+                      ₹{order.total}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <select

@@ -148,7 +148,8 @@ exports.getMyOrders = async (req, res) => {
 // @access  Private
 exports.getOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user.id })
+    const orders = await Order.find()
+      .populate('user', 'name email')
       .populate('items.product')
       .sort('-createdAt');
 
@@ -176,6 +177,17 @@ exports.updateOrderStatus = async (req, res) => {
     if (status === 'delivered') {
       order.isDelivered = true;
       order.deliveredAt = Date.now();
+    }
+    if(status === 'cancelled'){
+      order.isCancelled = true;
+      order.cancelledAt = Date.now();
+      
+      // Restore product quantities
+      for (const item of order.items) {
+        const product = await Product.findById(item.product);
+        product.stock += item.quantity;
+        await product.save();
+      }
     }
 
     const updatedOrder = await order.save();

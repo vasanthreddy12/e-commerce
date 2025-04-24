@@ -156,6 +156,7 @@ exports.getOrders = async (req, res) => {
 exports.updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
+    console.log(status,"status");
 
     const order = await Order.findById(req.params.id);
 

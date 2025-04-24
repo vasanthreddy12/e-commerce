@@ -98,7 +98,7 @@ export const getAllOrders = createAsyncThunk('order/getAllOrders', async () => {
 export const updateOrder = createAsyncThunk(
   'order/update',
   async ({ orderId, status }: { orderId: string; status: string }) => {
-    const response = await axios.put(`/api/orders/${orderId}`, { status });
+    const response = await axios.put(`/api/orders/${orderId}/status`, { status });
     return response.data;
   }
 );

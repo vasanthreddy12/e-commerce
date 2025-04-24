@@ -114,14 +114,11 @@ const OrderDetails: React.FC = () => {
                 </p>
               </div>
               <div className="text-right">
-                <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${statusColor}`}>
-                  {orderStatus.charAt(0).toUpperCase() + orderStatus.slice(1)}
-                </div>
-                {isAdmin && (
+                {isAdmin ? (
                   <select
                     value={orderStatus}
                     onChange={(e) => handleStatusUpdate(e.target.value)}
-                    className="block mt-2 input !w-auto"
+                    className={`block mt-2 input  px-3 py-1 rounded-full  !w-auto ${statusColor}`}
                   >
                     <option value="pending">Pending</option>
                     <option value="processing">Processing</option>
@@ -129,7 +126,9 @@ const OrderDetails: React.FC = () => {
                     <option value="delivered">Delivered</option>
                     <option value="cancelled">Cancelled</option>
                   </select>
-                )}
+                ):<div className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${statusColor}`}>
+                {orderStatus.charAt(0).toUpperCase() + orderStatus.slice(1)}
+              </div>}
               </div>
             </div>
 
@@ -210,20 +209,21 @@ const OrderDetails: React.FC = () => {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>{formatPrice(order.itemsPrice)}</span>
+                <span>{formatPrice(Number(order.subtotal))}</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>
-                <span>{order.shippingPrice === 0 ? 'Free' : formatPrice(order.shippingPrice)}</span>
+                <span>{order.shipping === 0 ? 'Free' : formatPrice(Number(order.shipping))}</span>
+              </div>
               </div>
               <div className="flex justify-between">
                 <span>Tax (15%)</span>
-                <span>{formatPrice(order.taxPrice)}</span>
+                <span>{formatPrice(Number(order.tax))}</span>
               </div>
               <div className="border-t pt-2 mt-2">
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>
-                  <span>{formatPrice(order.totalPrice)}</span>
+                  <span>{formatPrice(Number(order.total))}</span>
                 </div>
               </div>
             </div>
@@ -239,8 +239,12 @@ const OrderDetails: React.FC = () => {
               </div>
             ) : (
               <div className="bg-yellow-50 text-yellow-800 p-4 rounded-lg">
-                <p className="font-medium">Payment Pending</p>
-                <p className="text-sm">Cash on Delivery</p>
+                <p className="font-medium">{order.paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery'}</p>
+                {order.paymentMethod === 'online' && (
+                  <p className="text-sm">
+                    {order.isPaid ? 'Paid' : 'Payment Failed'}
+                  </p>
+                )}
               </div>
             )}
 
@@ -255,8 +259,7 @@ const OrderDetails: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
   );
-};
+}
 
-export default OrderDetails; 
+export default OrderDetails;

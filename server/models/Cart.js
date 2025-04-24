@@ -28,15 +28,30 @@ const cartSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  subtotal: {
+    type: Number,
+    default: 0
+  },
+  shipping: {
+    type: Number,
+    default: 0
+  },
+  tax: {
+    type: Number,
+    default: 0
+  },
   updatedAt: {
     type: Date,
     default: Date.now
   }
 });
 
-// Calculate total before saving
+// Calculate totals before saving
 cartSchema.pre('save', function(next) {
-  this.total = this.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  this.subtotal = this.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  this.shipping = this.subtotal > 1000 ? 0 : 100;
+  this.tax = this.subtotal * 0.15;
+  this.total = this.subtotal + this.shipping + this.tax;
   next();
 });
 

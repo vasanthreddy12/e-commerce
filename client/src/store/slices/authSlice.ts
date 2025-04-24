@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 interface User {
+  createdAt: string | number | Date;
   id: string;
   name: string;
   email: string;
@@ -36,7 +37,6 @@ export const register = createAsyncThunk(
   'auth/register',
   async (userData: { name: string; email: string; password: string }) => {
     const response = await axios.post('http://localhost:8080/api/auth/register', userData);
-    console.log("Hi");
     const { token, user } = response.data;
     localStorage.setItem('token', token);
     return { token, user };

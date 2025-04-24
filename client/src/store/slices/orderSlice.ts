@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../utils/axios.ts';
+import { ReactNode } from 'react';
 
 interface ShippingAddress {
   address: string;
@@ -21,6 +22,7 @@ interface OrderItem {
 }
 
 interface Order {
+  paymentResult: any;
   _id: string;
   user: {
     _id: string;
@@ -30,10 +32,10 @@ interface Order {
   items: OrderItem[];
   shippingAddress: ShippingAddress;
   paymentMethod: string;
-  itemsPrice: number;
-  shippingPrice: number;
-  taxPrice: number;
-  totalPrice: number;
+  subtotal: number;
+  shipping: number;
+  tax: number;
+  total: number;
   isPaid: boolean;
   paidAt?: Date;
   isDelivered: boolean;

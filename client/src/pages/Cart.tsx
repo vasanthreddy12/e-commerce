@@ -10,8 +10,11 @@ const Cart: React.FC = () => {
     if (!loading && !error && cart?.items.length === 0) {
       navigate('/products');
     }
-    console.log(cart,"cart");
-  }, [cart?.items.length, loading, error, navigate]);
+    // Debug logs
+    if (cart?.items) {
+      const calculatedTotal = cart.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    }
+  }, [cart?.items.length, loading, error, navigate, cart]);
 
   const handleQuantityChange = async (productId: string, quantity: number) => {
     try {
@@ -130,26 +133,21 @@ const Cart: React.FC = () => {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>₹{cart.total}</span>
+                <span>₹{cart.subtotal || cart.total}</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>
-                <span>{cart.total > 1000 ? 'Free' : '₹100'}</span>
+                <span>₹{cart.shipping || (cart.total > 1000 ? 0 : 100)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Tax (15%)</span>
-                <span>₹{(cart.total * 0.15).toFixed(2)}</span>
+                <span>₹{cart.tax || (cart.total * 0.15).toFixed(2)}</span>
               </div>
               <div className="border-t pt-2 mt-2">
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>
                   <span>
-                    ₹
-                    {(
-                      cart.total +
-                      (cart.total > 1000 ? 0 : 100) +
-                      cart.total * 0.15
-                    ).toFixed(2)}
+                    ₹{cart.total || (cart.total + (cart.total > 1000 ? 0 : 100) + cart.total * 0.15).toFixed(2)}
                   </span>
                 </div>
               </div>

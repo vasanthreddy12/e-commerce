@@ -22,6 +22,8 @@ interface ProductFormData {
   category: string;
   image: string;
   stock: number;
+  rating: number;
+  numReviews: number;
 }
 
 const AdminProducts: React.FC = () => {
@@ -38,7 +40,9 @@ const AdminProducts: React.FC = () => {
     price: 0,
     category: '',
     image: '',
-    stock: 0
+    stock: 0,
+    rating: 0,
+    numReviews: 5
   });
 
   const fetchProducts = async () => {
@@ -67,7 +71,9 @@ const AdminProducts: React.FC = () => {
       price: 0,
       category: '',
       image: '',
-      stock: 0
+      stock: 0,
+      rating: 0,
+      numReviews: 0
     });
     setEditingProduct(null);
   };
@@ -81,7 +87,9 @@ const AdminProducts: React.FC = () => {
         price: product.price,
         category: product.category,
         image: product.image,
-        stock: product.stock
+        stock: product.stock,
+        rating: product.rating,
+        numReviews: product.numReviews,
       });
     } else {
       resetForm();
@@ -207,7 +215,7 @@ const AdminProducts: React.FC = () => {
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="input"
+                  className="input pl-3"
                   required
                 />
               </div>
@@ -217,7 +225,7 @@ const AdminProducts: React.FC = () => {
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="input"
+                  className="input pl-3"
                   rows={3}
                   required
                 />
@@ -229,7 +237,7 @@ const AdminProducts: React.FC = () => {
                   id="price"
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-                  className="input"
+                  className="input pl-3"
                   min="0"
                   step="0.01"
                   required
@@ -241,7 +249,7 @@ const AdminProducts: React.FC = () => {
                   id="category"
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="input"
+                  className="input pl-3"
                   required
                 >
                   <option value="">Select a category</option>
@@ -262,7 +270,7 @@ const AdminProducts: React.FC = () => {
                   id="image"
                   value={formData.image}
                   onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  className="input"
+                  className="input pl-3"
                   required
                 />
               </div>
@@ -273,8 +281,21 @@ const AdminProducts: React.FC = () => {
                   id="stock"
                   value={formData.stock}
                   onChange={(e) => setFormData({ ...formData, stock: Number(e.target.value) })}
-                  className="input"
+                  className="input pl-3"
                   min="0"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="rating" className="label">Rating</label>
+                <input
+                  type="number"
+                  id="rating"
+                  value={formData.rating}
+                  onChange={(e) => setFormData({ ...formData, rating: Number(e.target.value) })}
+                  className="input pl-3"
+                  min="0"
+                  max="5"
                   required
                 />
               </div>

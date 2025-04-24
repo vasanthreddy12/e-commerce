@@ -55,8 +55,9 @@ exports.addToCart = async (req, res) => {
       const itemIndex = cart.items.findIndex(item => item.product.toString() === productId);
 
       if (itemIndex > -1) {
-        // Product exists in cart, update quantity
+        // Product exists in cart, update quantity and price
         cart.items[itemIndex].quantity = quantity;
+        cart.items[itemIndex].price = product.price;
       } else {
         // Product does not exist in cart, add new item
         cart.items.push({ product: productId, quantity, price: product.price });
@@ -110,7 +111,10 @@ exports.updateCartItem = async (req, res) => {
       return res.status(404).json({ message: 'Item not found in cart' });
     }
 
+    // Update both quantity and price
     cart.items[itemIndex].quantity = quantity;
+    cart.items[itemIndex].price = product.price;
+
     await cart.save();
 
     cart = await cart.populate('items.product');

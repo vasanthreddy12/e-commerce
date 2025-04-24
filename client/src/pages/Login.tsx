@@ -33,7 +33,6 @@ const Login: React.FC = () => {
           onSubmit={async (values, { setSubmitting }) => {
             try {
               const p=await dispatch(login(values)).unwrap();
-              //console.log(p);
               navigate('/');
             } catch (error) {
               console.error('Login failed:', error);
@@ -53,7 +52,7 @@ const Login: React.FC = () => {
                   name="email"
                   type="email"
                   autoComplete="email"
-                  className="input mt-1"
+                  className="input mt-1 pl-3"
                 />
                 {errors.email && touched.email && (
                   <p className="mt-1 text-sm text-red-600">{errors.email}</p>
@@ -69,7 +68,7 @@ const Login: React.FC = () => {
                   name="password"
                   type="password"
                   autoComplete="current-password"
-                  className="input mt-1"
+                  className="input mt-1 pl-3"
                 />
                 {errors.password && touched.password && (
                   <p className="mt-1 text-sm text-red-600">{errors.password}</p>

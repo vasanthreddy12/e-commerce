@@ -1,14 +1,14 @@
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
-// const Razorpay = require('razorpay');
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
 const { validationResult } = require('express-validator');
 
-// Commenting out Razorpay initialization
-// const razorpay = new Razorpay({
-//   key_id: process.env.RAZORPAY_KEY_ID,
-//   key_secret: process.env.RAZORPAY_KEY_SECRET
-// });
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET
+});
 
 // @desc    Create new order
 // @route   POST /api/orders
@@ -21,7 +21,6 @@ exports.createOrder = async (req, res) => {
     }
 
     const { shippingAddress } = req.body;
-    //console.log(shippingAddress);
 
     // Get user's cart
     const cart = await Cart.findOne({ user: req.user.id }).populate('items.product');
@@ -30,21 +29,11 @@ exports.createOrder = async (req, res) => {
       return res.status(400).json({ message: 'Cart is empty' });
     }
 
-    // Calculate prices
-    const itemsPrice = cart.items.reduce(
-      (acc, item) => acc + item.price * item.quantity,
-      0
-    );
-    const taxPrice = itemsPrice * 0.15; // 15% tax
-    const shippingPrice = itemsPrice > 1000 ? 0 : 100; // Free shipping for orders over ₹1000
-    const totalPrice = itemsPrice + taxPrice + shippingPrice;
-
-    // Comment out Razorpay order creation
-    // const razorpayOrder = await razorpay.orders.create({
-    //   amount: Math.round(totalPrice * 100), // Convert to paise
-    //   currency: 'INR',
-    //   receipt: `order_${Date.now()}`
-    // });
+    // Use the pre-calculated values from cart
+    const subtotal = cart.subtotal;
+    const shipping = cart.shipping;
+    const tax = cart.tax;
+    const total = cart.total;
 
     // Create order in database
     const order = await Order.create({
@@ -56,14 +45,13 @@ exports.createOrder = async (req, res) => {
         price: item.price
       })),
       shippingAddress,
-      paymentMethod: 'COD', // Changed to Cash on Delivery
-      itemsPrice,
-      taxPrice,
-      shippingPrice,
-      totalPrice,
-      // Removing Razorpay-specific fields
-      status: 'processing', // Set status directly to processing
-      isPaid: false // Will be paid on delivery
+      paymentMethod: req.body.paymentMethod,
+      subtotal,
+      tax,
+      shipping,
+      total,
+      status: 'processing',
+      isPaid: false
     });
 
     // Clear cart
@@ -77,11 +65,29 @@ exports.createOrder = async (req, res) => {
       await product.save();
     }
 
-    res.status(201).json({
-      success: true,
-      message: 'Order placed successfully',
-      order
-    });
+    if (order.paymentMethod === 'online') {
+      console.log(total,"total");
+      // Create Razorpay order
+      const razorpayOrder = await razorpay.orders.create({
+        amount: Math.round(total * 100), // amount in paise
+        currency: 'INR',
+        receipt: order._id.toString(),
+      });
+
+      // Update order with Razorpay order ID
+      order.razorpayOrderId = razorpayOrder.id;
+      await order.save();
+
+      res.status(201).json({
+        success: true,
+        order: {
+          ...order.toObject(),
+          razorpayOrderId: razorpayOrder.id
+        }
+      });
+    } else {
+      res.status(201).json({ success: true, order });
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server Error' });
@@ -139,10 +145,13 @@ exports.getMyOrders = async (req, res) => {
 
 // @desc    Get all orders
 // @route   GET /api/orders
-// @access  Private/Admin
+// @access  Private
 exports.getOrders = async (req, res) => {
   try {
-    const orders = await Order.find({}).populate('user', 'id name');
+    const orders = await Order.find({ user: req.user.id })
+      .populate('items.product')
+      .sort('-createdAt');
+
     res.json({ success: true, orders });
   } catch (error) {
     console.error(error);
@@ -156,7 +165,6 @@ exports.getOrders = async (req, res) => {
 exports.updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
-    console.log(status,"status");
 
     const order = await Order.findById(req.params.id);
 
@@ -179,44 +187,45 @@ exports.updateOrderStatus = async (req, res) => {
 };
 
 // @desc    Verify Razorpay payment
-// @route   POST /api/orders/:id/verify
+// @route   POST /api/orders/verify-payment
 // @access  Private
 exports.verifyPayment = async (req, res) => {
   try {
-    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
+    const { orderId, paymentId, signature } = req.body;
 
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findOne({ razorpayOrderId: orderId });
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
 
     // Verify signature
-    const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
-    hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
-    const generatedSignature = hmac.digest('hex');
+    const text = orderId + '|' + paymentId;
+    const generated_signature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(text)
+      .digest('hex');
 
-    if (generatedSignature === razorpay_signature) {
+    if (generated_signature === signature) {
+      order.status = 'processing';
       order.paymentResult = {
-        razorpay_payment_id,
-        razorpay_order_id,
-        razorpay_signature,
-        status: 'completed'
+        id: paymentId,
+        status: 'completed',
+        update_time: Date.now(),
       };
       order.isPaid = true;
       order.paidAt = Date.now();
-      order.status = 'processing';
+      await order.save();
 
-      const updatedOrder = await order.save();
+      // Clear the user's cart
+      await Cart.findOneAndUpdate(
+        { user: req.user.id },
+        { $set: { items: [] } }
+      );
 
-      // Update product stock
-      for (const item of order.items) {
-        const product = await Product.findById(item.product);
-        product.stock -= item.quantity;
-        await product.save();
-      }
-
-      res.json({ success: true, order: updatedOrder });
+      res.json({ success: true });
     } else {
+      order.status = 'failed';
+      await order.save();
       res.status(400).json({ message: 'Invalid signature' });
     }
   } catch (error) {

@@ -17,7 +17,7 @@ const ProductList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
 
   const category = searchParams.get('category') || 'all';
-  const sort = searchParams.get('sort') || 'createdAt:desc';
+  const sort = searchParams.get('sort') || 'rating:desc';
   const page = parseInt(searchParams.get('page') || '1');
 
   useEffect(() => {
@@ -162,7 +162,7 @@ const ProductList: React.FC = () => {
                       <div className="flex items-center">
                         <span className="text-yellow-400">★</span>
                         <span className="ml-1 text-sm text-gray-600">
-                          {product.rating} ({product.numReviews})
+                          {product.rating} 
                         </span>
                       </div>
                     </div>

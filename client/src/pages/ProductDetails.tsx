@@ -70,7 +70,7 @@ const ProductDetails: React.FC = () => {
               <div className="flex items-center">
                 <span className="text-yellow-400">★</span>
                 <span className="ml-1 text-sm text-gray-600">
-                  {product.rating} ({product.numReviews} reviews)
+                  {product.rating} 
                 </span>
               </div>
               <span className="mx-2 text-gray-300">|</span>

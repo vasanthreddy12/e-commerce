@@ -18,6 +18,9 @@ interface Cart {
   user: string;
   items: CartItem[];
   total: number;
+  subtotal: number;
+  shipping: number;
+  tax: number;
 }
 
 interface CartState {
@@ -80,7 +83,6 @@ export const removeFromCart = createAsyncThunk(
     const response = await axios.delete(`http://localhost:8080/api/cart/${productId}`, {
       headers: { Authorization: `Bearer ${state.auth.token}` },
     });
-    console.log(response,"response");
     return response.data.cart;
   }
 );
@@ -149,7 +151,6 @@ const cartSlice = createSlice({
       .addCase(removeFromCart.fulfilled, (state, action) => {
         state.loading = false;
         state.cart = action.payload;
-        console.log(state.cart,"state.cart");
       })
       .addCase(removeFromCart.rejected, (state, action) => {
         state.loading = false;

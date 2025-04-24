@@ -17,7 +17,7 @@ router.post(
   [
     protect,
     [
-      check('shippingAddress.address', 'Address is required').not().isEmpty(),
+      check('shippingAddress.address', 'address is required').not().isEmpty(),
       check('shippingAddress.city', 'City is required').not().isEmpty(),
       check('shippingAddress.postalCode', 'Postal code is required').not().isEmpty(),
       check('shippingAddress.country', 'Country is required').not().isEmpty()
@@ -67,5 +67,8 @@ router.post(
   ],
   verifyPayment
 );
+
+// @route   POST /api/orders/verify-payment
+router.post('/verify-payment', protect, verifyPayment);
 
 module.exports = router; 

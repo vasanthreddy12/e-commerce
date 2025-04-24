@@ -32,9 +32,9 @@ const Orders: React.FC = () => {
       case 'date-desc':
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       case 'price-asc':
-        return a.totalPrice - b.totalPrice;
+        return a.total - b.total;
       case 'price-desc':
-        return b.totalPrice - a.totalPrice;
+        return b.total - a.total;
       default:
         return 0;
     }
@@ -110,7 +110,7 @@ const Orders: React.FC = () => {
                 </div>
 
                 <div className="text-right">
-                  <p className="font-bold text-lg">₹{order.totalPrice}</p>
+                  <p className="font-bold text-lg">₹{order.total}</p>
                   <span
                     className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
                       statusColors[order.status as keyof typeof statusColors]

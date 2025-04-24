@@ -29,41 +29,65 @@ const orderSchema = new mongoose.Schema({
   },
   items: [orderItemSchema],
   shippingAddress: {
-    address: { type: String, required: true },
-    city: { type: String, required: true },
-    postalCode: { type: String, required: true },
-    country: { type: String, required: true }
+    address: {
+      type: String,
+      required: true,
+    },
+    city: {
+      type: String,
+      required: true,
+    },
+    state: {
+      type: String,
+      required: true,
+    },
+    postalCode: {
+      type: String,
+      required: true,
+    },
+    country: {
+      type: String,
+      required: true,
+    },
   },
   paymentMethod: {
     type: String,
     required: true,
-    default: 'Razorpay'
+    enum: ['COD', 'online'],
   },
   paymentResult: {
-    razorpay_payment_id: { type: String },
-    razorpay_order_id: { type: String },
-    razorpay_signature: { type: String },
-    status: { type: String }
+    id: String,
+    status: String,
+    update_time: String,
   },
-  itemsPrice: {
+  subtotal: {
     type: Number,
     required: true,
-    default: 0.0
+    default: 0.0,
   },
-  taxPrice: {
+  tax: {
     type: Number,
     required: true,
-    default: 0.0
+    default: 0.0,
   },
-  shippingPrice: {
+  shipping: {
     type: Number,
     required: true,
-    default: 0.0
+    default: 0.0,
   },
-  totalPrice: {
+  total: {
     type: Number,
     required: true,
-    default: 0.0
+    default: 0.0,
+  },
+  status: {
+    type: String,
+    required: true,
+    enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
+    default: 'pending',
+  },
+  razorpayOrderId: {
+    type: String,
   },
   isPaid: {
     type: Boolean,
@@ -81,12 +105,6 @@ const orderSchema = new mongoose.Schema({
   deliveredAt: {
     type: Date
   },
-  status: {
-    type: String,
-    required: true,
-    enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
-    default: 'pending'
-  }
 }, {
   timestamps: true
 });

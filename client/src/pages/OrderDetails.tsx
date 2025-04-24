@@ -209,20 +209,21 @@ const OrderDetails: React.FC = () => {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>{formatPrice(order.itemsPrice)}</span>
+                <span>{formatPrice(Number(order.subtotal))}</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>
-                <span>{order.shippingPrice === 0 ? 'Free' : formatPrice(order.shippingPrice)}</span>
+                <span>{order.shipping === 0 ? 'Free' : formatPrice(Number(order.shipping))}</span>
+              </div>
               </div>
               <div className="flex justify-between">
                 <span>Tax (15%)</span>
-                <span>{formatPrice(order.taxPrice)}</span>
+                <span>{formatPrice(Number(order.tax))}</span>
               </div>
               <div className="border-t pt-2 mt-2">
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>
-                  <span>{formatPrice(order.totalPrice)}</span>
+                  <span>{formatPrice(Number(order.total))}</span>
                 </div>
               </div>
             </div>
@@ -254,8 +255,7 @@ const OrderDetails: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
   );
-};
+}
 
-export default OrderDetails; 
+export default OrderDetails;

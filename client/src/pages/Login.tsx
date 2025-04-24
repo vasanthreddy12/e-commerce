@@ -33,7 +33,6 @@ const Login: React.FC = () => {
           onSubmit={async (values, { setSubmitting }) => {
             try {
               const p=await dispatch(login(values)).unwrap();
-              //console.log(p);
               navigate('/');
             } catch (error) {
               console.error('Login failed:', error);

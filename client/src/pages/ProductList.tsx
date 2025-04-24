@@ -162,7 +162,7 @@ const ProductList: React.FC = () => {
                       <div className="flex items-center">
                         <span className="text-yellow-400">★</span>
                         <span className="ml-1 text-sm text-gray-600">
-                          {product.rating} ({product.numReviews})
+                          {product.rating} 
                         </span>
                       </div>
                     </div>

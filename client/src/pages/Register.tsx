@@ -58,7 +58,7 @@ const Register: React.FC = () => {
                   name="name"
                   type="text"
                   autoComplete="name"
-                  className="input mt-1"
+                  className="input mt-1 pl-3"
                 />
                 {errors.name && touched.name && (
                   <p className="mt-1 text-sm text-red-600">{errors.name}</p>
@@ -74,7 +74,7 @@ const Register: React.FC = () => {
                   name="email"
                   type="email"
                   autoComplete="email"
-                  className="input mt-1"
+                  className="input mt-1 pl-3"
                 />
                 {errors.email && touched.email && (
                   <p className="mt-1 text-sm text-red-600">{errors.email}</p>
@@ -90,7 +90,7 @@ const Register: React.FC = () => {
                   name="password"
                   type="password"
                   autoComplete="new-password"
-                  className="input mt-1"
+                  className="input mt-1 pl-3"
                 />
                 {errors.password && touched.password && (
                   <p className="mt-1 text-sm text-red-600">{errors.password}</p>
@@ -106,7 +106,7 @@ const Register: React.FC = () => {
                   name="confirmPassword"
                   type="password"
                   autoComplete="new-password"
-                  className="input mt-1"
+                  className="input mt-1 pl-3"
                 />
                 {errors.confirmPassword && touched.confirmPassword && (
                   <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>

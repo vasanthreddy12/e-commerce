@@ -212,6 +212,8 @@ exports.verifyPayment = async (req, res) => {
         status: 'completed',
         update_time: Date.now(),
       };
+      order.isPaid = true;
+      order.paidAt = Date.now();
       await order.save();
 
       // Clear the user's cart

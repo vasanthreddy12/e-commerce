@@ -240,6 +240,11 @@ const OrderDetails: React.FC = () => {
             ) : (
               <div className="bg-yellow-50 text-yellow-800 p-4 rounded-lg">
                 <p className="font-medium">{order.paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery'}</p>
+                {order.paymentMethod === 'online' && (
+                  <p className="text-sm">
+                    {order.isPaid ? 'Paid' : 'Payment Failed'}
+                  </p>
+                )}
               </div>
             )}
 

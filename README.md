@@ -1,6 +1,6 @@
 # E-commerce Platform
 
-A full-stack e-commerce platform built with the MERN stack (MongoDB, Express, React, Node.js).
+A full-stack e-commerce platform built with the MERN stack (MongoDB, Express, React, Node.js). hii
 
 ## System Architecture 
 ![System Architecture](https://github.com/user-attachments/assets/8285f395-7c77-4fd9-abf2-a1d1bc9a9d2e)

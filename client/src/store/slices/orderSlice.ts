@@ -22,6 +22,7 @@ interface OrderItem {
 }
 
 interface Order {
+  paymentResult: any;
   _id: string;
   user: {
     _id: string;

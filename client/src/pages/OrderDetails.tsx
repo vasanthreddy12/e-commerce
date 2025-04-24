@@ -239,8 +239,7 @@ const OrderDetails: React.FC = () => {
               </div>
             ) : (
               <div className="bg-yellow-50 text-yellow-800 p-4 rounded-lg">
-                <p className="font-medium">Payment Pending</p>
-                <p className="text-sm">Cash on Delivery</p>
+                <p className="font-medium">{order.paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery'}</p>
               </div>
             )}
 

@@ -2,6 +2,15 @@
 
 A full-stack e-commerce platform built with the MERN stack (MongoDB, Express, React, Node.js).
 
+## System Architecture 
+![System Architecture](https://github.com/user-attachments/assets/8285f395-7c77-4fd9-abf2-a1d1bc9a9d2e)
+
+## Autorisation and Authentication Design
+![Authorisation and Authentication Design](https://github.com/user-attachments/assets/af6cc9f3-330a-4f08-b9ee-48816a0536f9)
+
+## State Management Flow
+![State Management Flow - Redux](https://github.com/user-attachments/assets/4738d212-6810-45c9-9435-09c900b7f224)
+
 ## Features
 
 - 🛍️ Product catalog with filtering, search, and sorting

@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useProducts } from '../hooks/useProducts.ts';
-
+import { fetchProducts } from '../store/slices/productSlice.ts';
+import { AsyncThunkAction, Dispatch } from '@reduxjs/toolkit';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '../store/index.ts';
 const Home:   React.FC =  () => {
   const { products, loading, error } =  useProducts();
   const featuredProducts = products?.slice(0, 6) || [];
-
+ const dispatch = useDispatch<AppDispatch>();
   const categories = [
     { name: 'Electronics', image: '/images/electronics.jpg' },
     { name: 'Clothing', image: '/images/fashion.jpg' },
@@ -14,10 +17,11 @@ const Home:   React.FC =  () => {
     { name: 'Sports', image: '/images/sports.jpg' },
     { name: 'Other', image: '/images/other.jpeg' }
   ];
-
+  useEffect(()=>{
+    dispatch(fetchProducts({page:1,sort:"createdAt:desc"}));
+  },[dispatch]) 
   if (loading) return <div className="text-center py-8">Loading...</div>;
   if (error) return <div className="text-center py-8 text-red-600">{error}</div>;
-
   return (
     <div className="space-y-12">
       {/* Hero Section */}
@@ -75,7 +79,7 @@ const Home:   React.FC =  () => {
                 <h3 className="text-lg font-medium mb-2">{product.name}</h3>
                 <p className="text-gray-600 mb-2 line-clamp-2">{product.description}</p>
                 <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold">${product.price}</span>
+                  <span className="text-lg font-bold">₹ {product.price}</span>
                   <Link
                     to={`/products/${product._id}`}
                     className="btn btn-primary"
@@ -120,3 +124,7 @@ const Home:   React.FC =  () => {
 };
 
 export default Home; 
+
+function dispatch(arg0: AsyncThunkAction<any, { page?: number; category?: string; search?: string; sort?: string; }, { state?: unknown; dispatch?: Dispatch; extra?: unknown; rejectValue?: unknown; serializedErrorType?: unknown; pendingMeta?: unknown; fulfilledMeta?: unknown; rejectedMeta?: unknown; }>) {
+  throw new Error('Function not implemented.');
+}

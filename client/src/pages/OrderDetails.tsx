@@ -114,14 +114,11 @@ const OrderDetails: React.FC = () => {
                 </p>
               </div>
               <div className="text-right">
-                <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${statusColor}`}>
-                  {orderStatus.charAt(0).toUpperCase() + orderStatus.slice(1)}
-                </div>
-                {isAdmin && (
+                {isAdmin ? (
                   <select
                     value={orderStatus}
                     onChange={(e) => handleStatusUpdate(e.target.value)}
-                    className="block mt-2 input !w-auto"
+                    className={`block mt-2 input  px-3 py-1 rounded-full  !w-auto ${statusColor}`}
                   >
                     <option value="pending">Pending</option>
                     <option value="processing">Processing</option>
@@ -129,7 +126,9 @@ const OrderDetails: React.FC = () => {
                     <option value="delivered">Delivered</option>
                     <option value="cancelled">Cancelled</option>
                   </select>
-                )}
+                ):<div className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${statusColor}`}>
+                {orderStatus.charAt(0).toUpperCase() + orderStatus.slice(1)}
+              </div>}
               </div>
             </div>
 

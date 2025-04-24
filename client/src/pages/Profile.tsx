@@ -32,10 +32,6 @@ const Profile: React.FC = () => {
                 <p className="font-medium">{user.email}</p>
               </div>
               <div>
-                <label className="text-sm text-gray-600">Account Type</label>
-                <p className="font-medium capitalize">{user.role}</p>
-              </div>
-              <div>
                 <label className="text-sm text-gray-600">Member Since</label>
                 <p className="font-medium">
                   {new Date(user.createdAt).toLocaleDateString()}

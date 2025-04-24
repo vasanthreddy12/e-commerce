@@ -17,7 +17,7 @@ const Orders: React.FC = () => {
 
   useEffect(() => {
     fetchMyOrders();
-  }, []);
+  }, [fetchMyOrders]);
 
   const filteredOrders = orders
     ? orders.filter(

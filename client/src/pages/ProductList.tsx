@@ -17,7 +17,7 @@ const ProductList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
 
   const category = searchParams.get('category') || 'all';
-  const sort = searchParams.get('sort') || 'createdAt:desc';
+  const sort = searchParams.get('sort') || 'rating:desc';
   const page = parseInt(searchParams.get('page') || '1');
 
   useEffect(() => {

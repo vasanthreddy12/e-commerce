@@ -1,9 +1,9 @@
-import React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../store';
-import { register } from '../store/slices/authSlice.ts';
+import { clearError, register } from '../store/slices/authSlice.ts';
 import { registerSchema } from '../utils/validation.ts';
 import { useAuth } from '../hooks/useAuth.ts';
 
@@ -11,7 +11,10 @@ const Register: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error } = useAuth();
-
+  const location = useLocation();
+  useEffect(() => {
+    dispatch(clearError());
+  }, [location.pathname, dispatch]);
   return (
     <div className="min-h-[80vh] flex items-center justify-center">
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-md">

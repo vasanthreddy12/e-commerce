@@ -48,6 +48,7 @@ exports.getProducts = async (req, res) => {
   }
 };
 
+
 // @desc    Get single product
 // @route   GET /api/products/:id
 // @access  Public

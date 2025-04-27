@@ -21,6 +21,7 @@ export const useCart = () => {
     }
   }, [dispatch, isAuthenticated]);
 
+  
   const addItem = async (productId: string, quantity: number) => {
     try {
       await dispatch(addToCart({ productId, quantity })).unwrap();

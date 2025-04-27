@@ -74,7 +74,7 @@ const Profile: React.FC = () => {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium">₹{order.totalPrice}</p>
+                        <p className="font-medium">₹{order.total}</p>
                         <p
                           className={`text-sm mt-1 ${
                             order.status === 'delivered'

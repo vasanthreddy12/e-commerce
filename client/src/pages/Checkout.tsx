@@ -32,10 +32,10 @@ const Checkout: React.FC = () => {
     return null;
   }
 
-  const subtotal = cart.total;
+  const subtotal = cart.subtotal;
   const shipping = subtotal > 1000 ? 0 : 100;
-  const tax = subtotal * 0.15;
-  const total = subtotal + shipping + tax;
+  const tax = Number((subtotal * 0.15).toFixed(2));
+  const total = Number((subtotal + shipping + tax).toFixed(2));
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

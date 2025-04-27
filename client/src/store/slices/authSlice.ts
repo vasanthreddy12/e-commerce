@@ -23,20 +23,39 @@ const initialState: AuthState = {
   error: null,
 };
 
+// export const login = createAsyncThunk(
+//   'auth/login',
+//   async (credentials: { email: string; password: string }) => {
+//     const response = await axios.post('http://localhost:8080/api/auth/login', credentials);
+//     console.log(response,"response.data");
+//     const { token, user } = response.data;
+//     localStorage.setItem('token', token);
+//     return { token, user };
+//   }
+// );
+
 export const login = createAsyncThunk(
   'auth/login',
-  async (credentials: { email: string; password: string }) => {
-    const response = await axios.post('http://localhost:8080/api/auth/login', credentials);
-    const { token, user } = response.data;
-    localStorage.setItem('token', token);
-    return { token, user };
+  async (credentials: { email: string; password: string }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post('http://localhost:8080/api/auth/login', credentials);
+      const { token, user } = response.data;
+      localStorage.setItem('token', token);
+      return { token, user };
+    } catch (err) {
+      console.log(err,"error");
+      // err.response?.data?.message is your custom message
+      return rejectWithValue(err?.response?.data?.message|| 'Login failed');
+    }
   }
 );
+
 
 export const register = createAsyncThunk(
   'auth/register',
   async (userData: { name: string; email: string; password: string }) => {
     const response = await axios.post('http://localhost:8080/api/auth/register', userData);
+   
     const { token, user } = response.data;
     localStorage.setItem('token', token);
     return { token, user };
@@ -76,10 +95,17 @@ const authSlice = createSlice({
         state.token = action.payload.token;
         state.user = action.payload.user;
       })
+      // .addCase(login.rejected, (state, action) => {
+      //   console.log(action.error,"action.error.message");
+      //   state.loading = false;
+      //   state.error = action.error.message || 'Login failed';
+      // })
+
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Login failed';
+        state.error = action.payload as string || 'Login failed';
       })
+      
       .addCase(register.pending, (state) => {
         state.loading = true;
         state.error = null;

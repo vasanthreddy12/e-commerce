@@ -39,6 +39,7 @@ export const useProducts = () => {
       throw error;
     }
   };
+  
 
   const getProduct = async (id: string) => {
     try {

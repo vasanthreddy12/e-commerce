@@ -36,11 +36,11 @@ const AdminDashboard: React.FC = () => {
         (product) => product.stock < lowStockThreshold
       ).length;
 
-      const revenue = orders.reduce(
-        (total, order) => total + order.totalPrice,
+      const revenue1 = orders.reduce(
+        (total, order) => total + order.total,
         0
       );
-
+       const revenue=Number(revenue1.toFixed(2))
       // Get recent orders (last 5)
       const recent = [...orders]
         .sort(
@@ -128,7 +128,7 @@ const AdminDashboard: React.FC = () => {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium">₹{order.totalPrice}</p>
+                    <p className="font-medium">₹{order.total}</p>
                     <p
                       className={`text-sm ${
                         order.status === 'delivered'

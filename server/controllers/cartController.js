@@ -150,6 +150,7 @@ exports.removeFromCart = async (req, res) => {
   }
 };
 
+
 // @desc    Clear cart
 // @route   DELETE /api/cart
 // @access  Private

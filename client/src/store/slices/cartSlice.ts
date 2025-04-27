@@ -13,6 +13,7 @@ interface CartItem {
   price: number;
 }
 
+
 interface Cart {
   _id: string;
   user: string;

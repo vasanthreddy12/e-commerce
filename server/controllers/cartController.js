@@ -1,6 +1,7 @@
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
 const { validationResult } = require('express-validator');
+const Order = require('../models/Order');
 
 // @desc    Get user's cart
 // @route   GET /api/cart
@@ -169,5 +170,62 @@ exports.clearCart = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// @desc    Restore cart items from failed order
+// @route   POST /api/cart/restore
+// @access  Private
+exports.restoreCart = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+
+    // Find the order
+    const order = await Order.findOne({ razorpayOrderId: orderId });
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Get user's cart
+    let cart = await Cart.findOne({ user: req.user.id });
+    if (!cart) {
+      cart = new Cart({ user: req.user.id, items: [] });
+    }
+
+    // Clear existing cart items
+    cart.items = [];
+
+    // Add order items back to cart
+    for (const item of order.items) {
+      cart.items.push({
+        product: item.product,
+        quantity: item.quantity,
+        price: item.price
+      });
+    }
+
+    // Recalculate cart totals
+    cart.subtotal = cart.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+    cart.shipping = cart.subtotal > 1000 ? 0 : 100;
+    cart.tax = cart.subtotal * 0.15;
+    cart.total = cart.subtotal + cart.shipping + cart.tax;
+
+    await cart.save();
+
+    // Populate the product data before sending response
+    cart = await cart.populate('items.product');
+
+    res.json({ 
+      success: true,
+      message: 'Cart restored successfully',
+      cart
+    });
+  } catch (error) {
+    console.error('Cart restore error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Failed to restore cart',
+      error: error.message 
+    });
   }
 }; 

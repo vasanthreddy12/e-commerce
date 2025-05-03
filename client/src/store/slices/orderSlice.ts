@@ -41,8 +41,9 @@ interface Order {
   paidAt?: Date;
   isDelivered: boolean;
   deliveredAt?: Date;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'failed';
   createdAt: Date;
+  cancelledAt?: Date;
 }
 
 interface RazorpayOrder {

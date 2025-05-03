@@ -11,6 +11,7 @@ const statusColors = {
   shipped: 'bg-purple-100 text-purple-800',
   delivered: 'bg-green-100 text-green-800',
   cancelled: 'bg-red-100 text-red-800',
+  failed: 'bg-red-100 text-red-800',
 };
 
 const formatDate = (dateString: string | Date | undefined) => {
@@ -92,173 +93,221 @@ const OrderDetails: React.FC = () => {
   }
 
   const orderStatus = order.status || 'pending';
-  const statusColor = statusColors[orderStatus as keyof typeof statusColors] || statusColors.pending;
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <Link to="/orders" className="text-primary-600 hover:text-primary-900">
-          ← Back to Orders
-        </Link>
-      </div>
+      <div className="max-w-4xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Order Details</h1>
+          <Link to="/orders" className="btn btn-secondary">
+            Back to Orders
+          </Link>
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Order Details */}
-        <div className="lg:col-span-2 space-y-8">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex justify-between items-start mb-6">
-              <div>
-                <h1 className="text-2xl font-bold mb-2">Order #{order._id}</h1>
-                <p className="text-gray-600">
-                  Placed on {formatDate(order.createdAt)}
-                </p>
-              </div>
-              <div className="text-right">
-                {isAdmin ? (
-                  <select
-                    value={orderStatus}
-                    onChange={(e) => handleStatusUpdate(e.target.value)}
-                    className={`block mt-2 input  px-3 py-1 rounded-full  !w-auto ${statusColor}`}
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="processing">Processing</option>
-                    <option value="shipped">Shipped</option>
-                    <option value="delivered">Delivered</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
-                ):<div className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${statusColor}`}>
+        {/* Order Status */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-xl font-semibold mb-2">Order Status</h2>
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[orderStatus]}`}>
                 {orderStatus.charAt(0).toUpperCase() + orderStatus.slice(1)}
-              </div>}
+              </span>
+            </div>
+            {order.status === 'cancelled' && order.cancelledAt && (
+              <div className="text-gray-600">
+                Cancelled on: {formatDate(order.cancelledAt)}
               </div>
-            </div>
-
-            <div className="border-t pt-6">
-              <h2 className="text-lg font-bold mb-4">Items</h2>
-              <div className="space-y-4">
-                {order.items?.map((item) => (
-                  <div
-                    key={item._id}
-                    className="flex items-center gap-4 bg-gray-50 rounded-lg p-4"
-                  >
-                    <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden">
-                      <img
-                        src={item.product?.image || '/placeholder-product.png'}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = '/placeholder-product.png';
-                        }}
-                      />
-                    </div>
-                    <div className="flex-grow">
-                      <Link
-                        to={`/products/${item.product?._id}`}
-                        className="font-medium hover:text-primary-600"
-                      >
-                        {item.name}
-                      </Link>
-                      <p className="text-sm text-gray-600">
-                        Quantity: {item.quantity}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium">{formatPrice(item.price)}</p>
-                      <p className="text-sm text-gray-600">
-                        Total: {formatPrice(item.price * item.quantity)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-                {(!order.items || order.items.length === 0) && (
-                  <p className="text-gray-600 text-center py-4">No items found in this order</p>
-                )}
+            )}
+            {order.status === 'failed' && order.paymentResult && (
+              <div className="text-red-600">
+                Payment Failed: {order.paymentResult.error_description || 'Unknown error'}
               </div>
-            </div>
-          </div>
-
-          {/* Shipping Information */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-bold mb-4">Shipping Information</h2>
-            <div className="space-y-2">
-              <p>
-                <span className="font-medium">Address:</span>{' '}
-                {order.shippingAddress?.address || 'N/A'}
-              </p>
-              <p>
-                <span className="font-medium">City:</span>{' '}
-                {order.shippingAddress?.city || 'N/A'}
-              </p>
-              <p>
-                <span className="font-medium">Postal Code:</span>{' '}
-                {order.shippingAddress?.postalCode || 'N/A'}
-              </p>
-              <p>
-                <span className="font-medium">Country:</span>{' '}
-                {order.shippingAddress?.country || 'N/A'}
-              </p>
-            </div>
+            )}
           </div>
         </div>
 
-        {/* Order Summary */}
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
-            <h2 className="text-lg font-bold">Order Summary</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Order Details */}
+          <div className="lg:col-span-2 space-y-8">
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h1 className="text-2xl font-bold mb-2">Order #{order._id}</h1>
+                  <p className="text-gray-600">
+                    Placed on {formatDate(order.createdAt)}
+                  </p>
+                </div>
+                <div className="text-right">
+                  {isAdmin ? (
+                    <select
+                      value={orderStatus}
+                      onChange={(e) => handleStatusUpdate(e.target.value)}
+                      className={`block mt-2 input px-3 py-1 rounded-full !w-auto ${statusColors[orderStatus]}`}
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="processing">Processing</option>
+                      <option value="shipped">Shipped</option>
+                      <option value="delivered">Delivered</option>
+                      <option value="cancelled">Cancelled</option>
+                      <option value="failed">Failed</option>
+                    </select>
+                  ) : (
+                    <div className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${statusColors[orderStatus]}`}>
+                      {orderStatus.charAt(0).toUpperCase() + orderStatus.slice(1)}
+                    </div>
+                  )}
+                </div>
+              </div>
 
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span>{formatPrice(Number(order.subtotal))}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Shipping</span>
-                <span>{order.shipping === 0 ? 'Free' : formatPrice(Number(order.shipping))}</span>
-              </div>
-              </div>
-              <div className="flex justify-between">
-                <span>Tax (15%)</span>
-                <span>{formatPrice(Number(order.tax))}</span>
-              </div>
-              <div className="border-t pt-2 mt-2">
-                <div className="flex justify-between font-bold text-lg">
-                  <span>Total</span>
-                  <span>{formatPrice(Number(order.total))}</span>
+              <div className="border-t pt-6">
+                <h2 className="text-lg font-bold mb-4">Items</h2>
+                <div className="space-y-4">
+                  {order.items?.map((item) => (
+                    <div
+                      key={item._id}
+                      className="flex items-center gap-4 bg-gray-50 rounded-lg p-4"
+                    >
+                      <div className="w-16 h-16 bg-gray-100 rounded overflow-hidden">
+                        <img
+                          src={item.product?.image || '/placeholder-product.png'}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = '/placeholder-product.png';
+                          }}
+                        />
+                      </div>
+                      <div className="flex-grow">
+                        <Link
+                          to={`/products/${item.product?._id}`}
+                          className="font-medium hover:text-primary-600"
+                        >
+                          {item.name}
+                        </Link>
+                        <p className="text-sm text-gray-600">
+                          Quantity: {item.quantity}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium">{formatPrice(item.price)}</p>
+                        <p className="text-sm text-gray-600">
+                          Total: {formatPrice(item.price * item.quantity)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                  {(!order.items || order.items.length === 0) && (
+                    <p className="text-gray-600 text-center py-4">No items found in this order</p>
+                  )}
                 </div>
               </div>
             </div>
 
-            {order.isPaid ? (
-              <div className="bg-green-50 text-green-800 p-4 rounded-lg">
-                <p className="font-medium">Paid</p>
-                {order.paidAt && (
-                  <p className="text-sm">
-                    Paid on {formatDate(order.paidAt)}
-                  </p>
-                )}
-              </div>
-            ) : (
-              <div className="bg-yellow-50 text-yellow-800 p-4 rounded-lg">
-                <p className="font-medium">{order.paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery'}</p>
-                {order.paymentMethod === 'online' && (
-                  <p className="text-sm">
-                    {order.isPaid ? 'Paid' : 'Payment Failed'}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {order.isDelivered && order.deliveredAt && (
-              <div className="bg-green-50 text-green-800 p-4 rounded-lg">
-                <p className="font-medium">Delivered</p>
-                <p className="text-sm">
-                  Delivered on {formatDate(order.deliveredAt)}
+            {/* Shipping Information */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-lg font-bold mb-4">Shipping Information</h2>
+              <div className="space-y-2">
+                <p>
+                  <span className="font-medium">Address:</span>{' '}
+                  {order.shippingAddress?.address || 'N/A'}
+                </p>
+                <p>
+                  <span className="font-medium">City:</span>{' '}
+                  {order.shippingAddress?.city || 'N/A'}
+                </p>
+                <p>
+                  <span className="font-medium">Postal Code:</span>{' '}
+                  {order.shippingAddress?.postalCode || 'N/A'}
+                </p>
+                <p>
+                  <span className="font-medium">Country:</span>{' '}
+                  {order.shippingAddress?.country || 'N/A'}
                 </p>
               </div>
-            )}
+            </div>
+          </div>
+
+          {/* Order Summary */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
+              <h2 className="text-lg font-bold">Order Summary</h2>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Subtotal</span>
+                  <span>{formatPrice(Number(order.subtotal))}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Shipping</span>
+                  <span>{order.shipping === 0 ? 'Free' : formatPrice(Number(order.shipping))}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Tax (15%)</span>
+                  <span>{formatPrice(Number(order.tax))}</span>
+                </div>
+                <div className="border-t pt-2 mt-2">
+                  <div className="flex justify-between font-bold text-lg">
+                    <span>Total</span>
+                    <span>{formatPrice(Number(order.total))}</span>
+                  </div>
+                </div>
+              </div>
+
+              {order.isPaid ? (
+                <div className="bg-green-50 text-green-800 p-4 rounded-lg">
+                  <p className="font-medium">Paid</p>
+                  {order.paidAt && (
+                    <p className="text-sm">
+                      Paid on {formatDate(order.paidAt)}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="bg-yellow-50 text-yellow-800 p-4 rounded-lg">
+                  <p className="font-medium">{order.paymentMethod === 'online' ? 'Online Payment' : 'Cash on Delivery'}</p>
+                  {order.paymentMethod === 'online' && (
+                    <p className="text-sm">
+                      {order.isPaid ? 'Paid' : 'Payment Failed'}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {order.status === 'cancelled' && (
+                <div className="bg-red-50 text-red-800 p-4 rounded-lg">
+                  <p className="font-medium">Order Cancelled</p>
+                  {order.cancelledAt && (
+                    <p className="text-sm">
+                      Cancelled on {formatDate(order.cancelledAt)}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {order.status === 'failed' && (
+                <div className="bg-red-50 text-red-800 p-4 rounded-lg">
+                  <p className="font-medium">Payment Failed</p>
+                  {order.paymentResult?.error && (
+                    <p className="text-sm">
+                      Reason: {order.paymentResult.error}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {order.isDelivered && order.deliveredAt && (
+                <div className="bg-green-50 text-green-800 p-4 rounded-lg">
+                  <p className="font-medium">Delivered</p>
+                  <p className="text-sm">
+                    Delivered on {formatDate(order.deliveredAt)}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
+    </div>
   );
 }
 

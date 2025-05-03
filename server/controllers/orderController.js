@@ -86,6 +86,7 @@ exports.createOrder = async (req, res) => {
         }
       });
     } else {
+      order.status = 'processing';
       res.status(201).json({ success: true, order });
     }
   } catch (error) {
@@ -236,12 +237,145 @@ exports.verifyPayment = async (req, res) => {
 
       res.json({ success: true });
     } else {
-      order.status = 'failed';
+      // Payment failed - update order status and restore product quantities
+      order.status = 'cancelled';
+      order.paymentResult = {
+        id: paymentId,
+        status: 'failed',
+        update_time: Date.now(),
+        error: 'Invalid signature'
+      };
+      order.cancelledAt = Date.now();
       await order.save();
-      res.status(400).json({ message: 'Invalid signature' });
+
+      // Restore product quantities
+      for (const item of order.items) {
+        const product = await Product.findById(item.product);
+        if (product) {
+          product.stock += item.quantity;
+          await product.save();
+        }
+      }
+
+      res.status(400).json({ 
+        success: false,
+        message: 'Payment verification failed',
+        error: 'Invalid signature'
+      });
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server Error' });
+    console.error('Payment verification error:', error);
+    // If order exists, update its status and restore quantities
+    if (req.body.orderId) {
+      const order = await Order.findOne({ razorpayOrderId: req.body.orderId });
+      if (order) {
+        order.status = 'cancelled';
+        order.paymentResult = {
+          status: 'failed',
+          update_time: Date.now(),
+          error: error.message
+        };
+        order.cancelledAt = Date.now();
+        await order.save();
+
+        // Restore product quantities
+        for (const item of order.items) {
+          const product = await Product.findById(item.product);
+          if (product) {
+            product.stock += item.quantity;
+            await product.save();
+          }
+        }
+      }
+    }
+    res.status(500).json({ 
+      success: false,
+      message: 'Payment verification failed',
+      error: error.message 
+    });
+  }
+};
+
+// @desc    Handle payment cancellation
+// @route   POST /api/orders/cancel-payment
+// @access  Private
+exports.cancelPayment = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+
+    if (!orderId) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Order ID is required' 
+      });
+    }
+
+    const order = await Order.findOne({ razorpayOrderId: orderId });
+    if (!order) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Order not found' 
+      });
+    }
+
+    // Check if order is already cancelled
+    if (order.status === 'cancelled') {
+      return res.json({ 
+        success: true,
+        message: 'Order is already cancelled',
+        order
+      });
+    }
+
+    // Update order status
+    order.status = 'cancelled';
+    order.paymentResult = {
+      status: 'cancelled',
+      update_time: Date.now(),
+      error: 'Payment cancelled by user'
+    };
+    order.cancelledAt = Date.now();
+
+    try {
+      // Restore product quantities
+      for (const item of order.items) {
+        const product = await Product.findById(item.product);
+        if (product) {
+          product.stock += item.quantity;
+          await product.save();
+        }
+      }
+
+      await order.save();
+      
+      res.json({ 
+        success: true,
+        message: 'Payment cancelled and order updated',
+        order
+      });
+    } catch (saveError) {
+      console.error('Error saving order or updating products:', saveError);
+      // If we fail to save, try to rollback any product updates
+      try {
+        for (const item of order.items) {
+          const product = await Product.findById(item.product);
+          if (product) {
+            product.stock -= item.quantity; // Revert the stock update
+            await product.save();
+          }
+        }
+      } catch (rollbackError) {
+        console.error('Error rolling back product updates:', rollbackError);
+      }
+      
+      throw saveError; // Re-throw to be caught by outer try-catch
+    }
+  } catch (error) {
+    console.error('Payment cancellation error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Failed to cancel payment',
+      error: error.message 
+    });
   }
 }; 

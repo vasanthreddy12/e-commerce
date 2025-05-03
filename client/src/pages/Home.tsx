@@ -90,32 +90,10 @@ const Home:   React.FC =  () => {
               </div>
             ))}
           </div>
-          <div className="text-center mt-8">
+          <div className="text-center mt-8 mb-6">
             <Link to="/products" className="btn btn-secondary">
               View All Products
             </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Newsletter Section */}
-      <section className="bg-gray-100 py-12">
-        <div className="container mx-auto px-4">
-          <div className="max-w-xl mx-auto text-center">
-            <h2 className="text-2xl font-bold mb-4">Subscribe to Our Newsletter</h2>
-            <p className="text-gray-600 mb-6">
-              Stay updated with our latest products and offers
-            </p>
-            <form className="flex gap-4">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="input flex-1"
-              />
-              <button type="submit" className="btn btn-primary">
-                Subscribe
-              </button>
-            </form>
           </div>
         </div>
       </section>

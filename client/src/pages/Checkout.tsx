@@ -64,14 +64,14 @@ const Checkout: React.FC = () => {
 
     const options = {
       key: process.env.REACT_APP_RAZORPAY_KEY_ID,
-      amount: total * 100, // Amount in paise
+      amount: total * 100,
       currency: 'INR',
       name: 'E-Commerce Store',
       description: 'Purchase Payment',
       order_id: orderId,
       handler: async (response: any) => {
         try {
-          await axios.post(
+          const verifyResponse = await axios.post(
             'http://localhost:8080/api/orders/verify-payment',
             {
               orderId,
@@ -84,10 +84,37 @@ const Checkout: React.FC = () => {
               },
             }
           );
-          await clearCartItems();
-          navigate('/order-success');
+
+          if (verifyResponse.data.success) {
+            await clearCartItems();
+            navigate('/order-success');
+          } else {
+            await axios.post(
+              'http://localhost:8080/api/cart/restore',
+              { orderId },
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+              }
+            );
+            navigate('/cart');
+          }
         } catch (error) {
-          setError('Payment verification failed');
+          try {
+            await axios.post(
+              'http://localhost:8080/api/cart/restore',
+              { orderId },
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+              }
+            );
+          } catch (restoreError) {
+            console.error('Failed to restore cart:', restoreError);
+          }
+          navigate('/cart');
         }
       },
       prefill: {
@@ -97,6 +124,71 @@ const Checkout: React.FC = () => {
       theme: {
         color: '#3B82F6',
       },
+      modal: {
+        ondismiss: async function() {
+          try {
+            // First cancel the payment
+            await axios.post(
+              'http://localhost:8080/api/orders/cancel-payment',
+              { orderId },
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+              }
+            );
+
+            // Then restore the cart items
+            await axios.post(
+              'http://localhost:8080/api/cart/restore',
+              { orderId },
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+              }
+            );
+
+            // Navigate to cart page
+            navigate('/cart');
+          } catch (error) {
+            console.error('Payment cancellation error:', error);
+            // Even if there's an error, try to restore cart
+            try {
+              await axios.post(
+                'http://localhost:8080/api/cart/restore',
+                { orderId },
+                {
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                  },
+                }
+              );
+            } catch (restoreError) {
+              console.error('Failed to restore cart:', restoreError);
+            }
+            navigate('/cart');
+          }
+        }
+      },
+      config: {
+        display: {
+          blocks: {
+            banks: {
+              name: "Pay using UPI",
+              instruments: [
+                {
+                  method: "upi"
+                }
+              ]
+            }
+          },
+          sequence: ["block.banks"],
+          preferences: {
+            show_default_blocks: true
+          }
+        }
+      }
     };
 
     const paymentObject = new (window as any).Razorpay(options);
@@ -109,7 +201,6 @@ const Checkout: React.FC = () => {
     setError(null);
 
     try {
-      // Create order
       const orderData = {
         items: cart.items,
         shippingAddress,
@@ -123,17 +214,15 @@ const Checkout: React.FC = () => {
         'http://localhost:8080/api/orders',
         orderData,
         {
-            headers: {
+          headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         }
       );
 
       if (paymentMethod === 'online') {
-        // If online payment, initialize Razorpay
         await handleOnlinePayment(response.data.order.razorpayOrderId);
       } else {
-        // If COD, clear cart and redirect
         await clearCartItems();
         navigate('/order-success');
       }

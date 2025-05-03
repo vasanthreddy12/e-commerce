@@ -6,7 +6,8 @@ const {
   addToCart,
   updateCartItem,
   removeFromCart,
-  clearCart
+  clearCart,
+  restoreCart
 } = require('../controllers/cartController');
 const { protect } = require('../middleware/auth');
 
@@ -43,5 +44,17 @@ router.delete('/:productId', protect, removeFromCart);
 
 // @route   DELETE /api/cart
 router.delete('/', protect, clearCart);
+
+// @route   POST /api/cart/restore
+router.post(
+  '/restore',
+  [
+    protect,
+    [
+      check('orderId', 'Order ID is required').not().isEmpty()
+    ]
+  ],
+  restoreCart
+);
 
 module.exports = router; 

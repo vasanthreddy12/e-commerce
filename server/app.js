@@ -7,6 +7,7 @@ const productRoutes = require('./routes/products');
 const cartRoutes = require('./routes/cart');
 const orderRoutes = require('./routes/orders');
 const { errorHandler } = require('./middleware/errorHandler');
+const { apiLimiter, authLimiter } = require('./middleware/rateLimiter');
 
 dotenv.config();
 const app = express();
@@ -35,6 +36,9 @@ app.use(cors(corsOptions));
 // Middleware
 app.use(express.json());
 
+// Apply rate limiting to all API routes except auth
+app.use('/api', apiLimiter);
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
@@ -52,4 +56,6 @@ mongoose.connect(process.env.MONGODB_URI)
 const PORT = process.env.PORT || 8080; // Updated default port
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-}); 
+});
+
+module.exports = app; 

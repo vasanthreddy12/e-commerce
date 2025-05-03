@@ -7,7 +7,8 @@ const {
   getMyOrders,
   getOrders,
   updateOrderStatus,
-  verifyPayment
+  verifyPayment,
+  cancelPayment
 } = require('../controllers/orderController');
 const { protect, admin } = require('../middleware/auth');
 
@@ -70,5 +71,17 @@ router.post(
 
 // @route   POST /api/orders/verify-payment
 router.post('/verify-payment', protect, verifyPayment);
+
+// @route   POST /api/orders/cancel-payment
+router.post(
+  '/cancel-payment',
+  [
+    protect,
+    [
+      check('orderId', 'Order ID is required').not().isEmpty()
+    ]
+  ],
+  cancelPayment
+);
 
 module.exports = router; 
